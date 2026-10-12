@@ -2,6 +2,7 @@ import { getSettings, saveSettings } from '../utils/storage';
 import { compressImageToDataUrl } from '../utils/imageCompressor';
 
 const imageInput = document.getElementById('imageInput') as HTMLInputElement;
+const chooseFileBtn = document.getElementById('chooseFileBtn') as HTMLButtonElement;
 const fileNameDisplay = document.getElementById('fileNameDisplay') as HTMLDivElement;
 const resetBtn = document.getElementById('resetBtn') as HTMLButtonElement;
 
@@ -33,6 +34,8 @@ function updateLiveValues() {
   opacityVal.textContent = `${Math.round(parseFloat(opacityInput.value) * 100)}%`;
   blurVal.textContent = `${blurInput.value}px`;
 }
+
+chooseFileBtn.addEventListener('click', () => imageInput.click());
 
 imageInput.addEventListener('change', async (e) => {
   const file = (e.target as HTMLInputElement).files?.[0];

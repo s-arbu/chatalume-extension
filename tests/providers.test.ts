@@ -7,8 +7,14 @@ import { getSettings, saveSettings } from '../src/utils/storage';
 import { compressImageToDataUrl } from '../src/utils/imageCompressor';
 
 const originalChrome = globalThis.chrome;
+const originalLocks = Object.getOwnPropertyDescriptor(navigator, 'locks');
 
 beforeEach(() => {
+  // Bun has no Web Locks; cross-tab serialization is tested in Chromium.
+  Object.defineProperty(navigator, 'locks', {
+    configurable: true,
+    value: { request: (_name: string, callback: () => Promise<void>) => callback() }
+  });
   globalThis.chrome = {
     storage: {
       local: {
@@ -21,6 +27,8 @@ beforeEach(() => {
 
 afterAll(() => {
   globalThis.chrome = originalChrome;
+  if (originalLocks) Object.defineProperty(navigator, 'locks', originalLocks);
+  else Reflect.deleteProperty(navigator, 'locks');
 });
 
 const claudeStylesheet = readFileSync(new URL('../public/providers/claude.css', import.meta.url), 'utf8');

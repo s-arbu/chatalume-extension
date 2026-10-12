@@ -50,11 +50,14 @@ export async function getSettings(): Promise<WallpaperSettings> {
 }
 
 export async function saveSettings(settings: Partial<WallpaperSettings>): Promise<void> {
-  const current = await getSettings();
-  const updated: WallpaperSettings = {
-    ...current,
-    ...settings,
-    version: CURRENT_SETTINGS_VERSION
-  };
-  await chrome.storage.local.set({ llm_wallpaper_settings: updated });
+  // All settings tabs share this lock so read/merge/write cannot lose another save.
+  await navigator.locks.request('llm_wallpaper_settings', async () => {
+    const current = await getSettings();
+    const updated: WallpaperSettings = {
+      ...current,
+      ...settings,
+      version: CURRENT_SETTINGS_VERSION
+    };
+    await chrome.storage.local.set({ llm_wallpaper_settings: updated });
+  });
 }
