@@ -6,7 +6,7 @@ const browserChannel = process.env.PLAYWRIGHT_CHANNEL === 'chrome' ? 'chrome' : 
 
 export default defineConfig({
   testDir: './tests',
-  testMatch: '**/dom-check.spec.ts',
+  testMatch: '**/*.spec.ts',
   fullyParallel: true,
   timeout: 30_000,
   reporter: [['html', { outputFolder: 'playwright-report', open: 'never' }]],

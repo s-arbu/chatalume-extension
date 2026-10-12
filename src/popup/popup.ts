@@ -5,6 +5,8 @@ const imageInput = document.getElementById('imageInput') as HTMLInputElement;
 const chooseFileBtn = document.getElementById('chooseFileBtn') as HTMLButtonElement;
 const fileNameDisplay = document.getElementById('fileNameDisplay') as HTMLDivElement;
 const resetBtn = document.getElementById('resetBtn') as HTMLButtonElement;
+const uploadError = document.getElementById('uploadError') as HTMLParagraphElement;
+let uploadController: AbortController | undefined;
 
 const opacityInput = document.getElementById('opacityInput') as HTMLInputElement;
 const opacityVal = document.getElementById('opacityVal') as HTMLSpanElement;
@@ -41,6 +43,10 @@ imageInput.addEventListener('change', async (e) => {
   const file = (e.target as HTMLInputElement).files?.[0];
   if (!file) return;
 
+  uploadController?.abort();
+  const controller = new AbortController();
+  uploadController = controller;
+  uploadError.hidden = true;
   fileNameDisplay.textContent = 'Processing...';
 
   try {
@@ -50,16 +56,22 @@ imageInput.addEventListener('change', async (e) => {
       quality: 0.85
     });
     
+    if (controller.signal.aborted) return;
     await saveSettings({ 
       imageDataUrl: compressedDataUrl,
       fileName: file.name
-    });
+    }, controller.signal);
+    if (controller.signal.aborted) return;
     
     fileNameDisplay.textContent = file.name;
     resetBtn.style.display = 'block';
   } catch (err) {
+    if (controller.signal.aborted) return;
     console.error('Failed to compress image:', err);
-    fileNameDisplay.textContent = 'Error processing file';
+    fileNameDisplay.textContent = 'Upload failed';
+    uploadError.textContent = `${err instanceof Error ? err.message : 'Could not process this image.'} Previous wallpaper unchanged.`;
+    uploadError.hidden = false;
+    imageInput.value = '';
   }
 });
 
@@ -74,7 +86,9 @@ blurInput.addEventListener('input', async () => {
 });
 
 resetBtn.addEventListener('click', async () => {
+  uploadController?.abort();
   await saveSettings({ imageDataUrl: null, fileName: null });
+  uploadError.hidden = true;
   imageInput.value = '';
   fileNameDisplay.textContent = 'No file chosen';
   resetBtn.style.display = 'none';

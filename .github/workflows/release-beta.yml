@@ -21,6 +21,12 @@ jobs:
         run: bun install --frozen-lockfile
       - name: Build extension
         run: bun run build
+      - name: Check types and unit tests
+        run: bunx tsc --noEmit && bun run test:unit
+      - name: Install Chromium
+        run: bunx playwright install --with-deps chromium
+      - name: Check wallpaper behavior
+        run: bun run test:browser
       - name: Package release zip
         run: |
           mkdir -p out

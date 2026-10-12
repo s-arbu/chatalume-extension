@@ -16,22 +16,25 @@ const DEFAULT_SETTINGS: WallpaperSettings = {
   version: CURRENT_SETTINGS_VERSION
 };
 
-function migrateSettings(stored?: Partial<WallpaperSettings>): WallpaperSettings {
+export function normalizeSettings(stored?: Partial<WallpaperSettings>): WallpaperSettings {
   const merged: WallpaperSettings = {
     ...DEFAULT_SETTINGS,
     ...stored,
     version: CURRENT_SETTINGS_VERSION
   };
 
-  if (typeof merged.opacity !== 'number' || Number.isNaN(merged.opacity)) {
+  if (typeof merged.opacity !== 'number' || !Number.isFinite(merged.opacity)) {
     merged.opacity = DEFAULT_SETTINGS.opacity;
   }
 
-  if (typeof merged.blur !== 'number' || Number.isNaN(merged.blur)) {
+  if (typeof merged.blur !== 'number' || !Number.isFinite(merged.blur)) {
     merged.blur = DEFAULT_SETTINGS.blur;
   }
 
-  if (typeof merged.imageDataUrl !== 'string' && merged.imageDataUrl !== null) {
+  merged.opacity = Math.max(0.05, Math.min(1, merged.opacity));
+  merged.blur = Math.max(0, Math.min(20, merged.blur));
+
+  if (typeof merged.imageDataUrl !== 'string' || !/^data:image\/[a-z0-9.+-]+;base64,[a-z0-9+/=]+$/i.test(merged.imageDataUrl)) {
     merged.imageDataUrl = DEFAULT_SETTINGS.imageDataUrl;
   }
 
@@ -46,18 +49,18 @@ export async function getSettings(): Promise<WallpaperSettings> {
   const result = await chrome.storage.local.get('llm_wallpaper_settings');
   const stored = result.llm_wallpaper_settings as Partial<WallpaperSettings> | undefined;
 
-  return migrateSettings(stored);
+  return normalizeSettings(stored);
 }
 
-export async function saveSettings(settings: Partial<WallpaperSettings>): Promise<void> {
+export async function saveSettings(settings: Partial<WallpaperSettings>, signal?: AbortSignal): Promise<void> {
   // All settings tabs share this lock so read/merge/write cannot lose another save.
-  await navigator.locks.request('llm_wallpaper_settings', async () => {
+  await navigator.locks.request('llm_wallpaper_settings', { signal }, async () => {
     const current = await getSettings();
-    const updated: WallpaperSettings = {
+    const updated = normalizeSettings({
       ...current,
       ...settings,
       version: CURRENT_SETTINGS_VERSION
-    };
+    });
     await chrome.storage.local.set({ llm_wallpaper_settings: updated });
   });
 }

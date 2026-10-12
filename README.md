@@ -83,7 +83,17 @@ bun run build
 
 ## Privacy
 
-Your selected image and settings stay in the browser. There is no login, no server, and no cloud sync in the current setup.
+Your selected image and settings are stored in this browser's local extension storage. The extension has no account, application server, cloud sync, or image-upload endpoint.
+
+To display a wallpaper, the extension writes the image into the supported website's page. Scripts on that website can read the displayed image through the shared page DOM. Local storage does not isolate a displayed wallpaper from the website; avoid using sensitive images. See [Chrome's content-script documentation](https://developer.chrome.com/docs/extensions/develop/concepts/content-scripts).
+
+Access is limited to `chatgpt.com`, `claude.ai`, and `gemini.google.com`. ChatGPT authentication subdomains are excluded.
+
+### Upload limits
+
+New images must be 10 MiB or smaller, including animated GIFs. Static images are resized to fit within 2560 × 1440 and encoded as WebP; GIFs retain their original animation and dimensions. Failed uploads leave the previous wallpaper unchanged, and the most recent selection takes priority over earlier processing.
+
+The file-size limit bounds input bytes, not decoded memory. The browser still needs to decode static images before resizing them.
 
 ---
 ---
@@ -103,6 +113,22 @@ The extension stores wallpaper settings in browser local storage under one objec
 - `version`: schema version, currently `1`
 
 The schema is intentionally kept stable so older settings can be migrated forward instead of being reset when fields change.
+
+### Verification
+
+Run the local release checks without provider accounts:
+
+```bash
+bun run test:unit
+bunx tsc --noEmit
+bun run build
+bunx playwright install chromium
+bun run test:browser
+```
+
+The browser suite loads the built extension against local page fixtures. It checks uploads, overlapping saves, errors, effect validation, navigation, reload, removal, keyboard controls, and light/dark modes. These checks run on pushes, pull requests, and before release packaging.
+
+`bun run test:monitor` separately checks live provider pages. Scheduled monitoring can use authenticated state as described in [ROADMAP.md](ROADMAP.md); without it, authenticated checks are skipped. Fixture tests do not prove the current authenticated provider layout is readable. `bun run test:dom` runs both suites.
 
 ### Release checklist
 

@@ -7,7 +7,9 @@
     "build": "vite build && vite build --config vite.content.config.ts",
     "build:release": "rm -rf out && mkdir -p out && bun run build && cd dist && zip -r ../out/llm-wallpapers-v0.1.0.zip .",
     "test:unit": "bun test tests/providers.test.ts",
-    "test:dom": "bunx playwright test"
+    "test:dom": "bunx playwright test",
+    "test:browser": "bunx playwright test wallpaper.spec.ts",
+    "test:monitor": "bunx playwright test dom-check.spec.ts"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",

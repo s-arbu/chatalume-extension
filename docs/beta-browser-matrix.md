@@ -18,6 +18,8 @@ The intent is not to claim every Chromium build is supported. The beta goal is t
 
 ## Recommended CI behavior
 
+The local release gate uses `bun run test:browser` with the built extension and local light/dark fixtures. Live provider monitoring uses `bun run test:monitor` separately, on a schedule or manual dispatch, so an upstream outage does not block the local regression gate. Authenticated checks require maintainer-provided state and cover wallpaper persistence and composer visibility in both color schemes; they must be run before claiming authenticated coverage.
+
 1. Run the provider smoke suite against Playwright-managed Chromium.
 2. Record the browser version in the workflow summary.
 3. Keep failures tied to provider, browser channel, URL, and screenshot.

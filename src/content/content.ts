@@ -1,4 +1,4 @@
-import { getSettings, WallpaperSettings } from '../utils/storage';
+import { getSettings, normalizeSettings, WallpaperSettings } from '../utils/storage';
 import { getProvider } from '../providers';
 
 const provider = getProvider(new URL(window.location.href));
@@ -66,7 +66,7 @@ async function init() {
 
   chrome.storage.onChanged.addListener((changes, namespace) => {
     if (namespace === 'local' && changes.llm_wallpaper_settings) {
-      currentSettings = changes.llm_wallpaper_settings.newValue as WallpaperSettings | undefined;
+      currentSettings = normalizeSettings(changes.llm_wallpaper_settings.newValue as Partial<WallpaperSettings> | undefined);
       restoreProviderUi();
     }
   });

@@ -11,7 +11,6 @@
   "permissions": ["storage", "unlimitedStorage"],
   "host_permissions": [
     "https://chatgpt.com/*",
-    "https://*.chatgpt.com/*",
     "https://claude.ai/*",
     "https://gemini.google.com/*"
   ],
@@ -30,7 +29,6 @@
     {
       "matches": [
         "https://chatgpt.com/*",
-        "https://*.chatgpt.com/*",
         "https://claude.ai/*",
         "https://gemini.google.com/*"
       ],
@@ -43,7 +41,6 @@
       "resources": ["providers/*.css"],
       "matches": [
         "https://chatgpt.com/*",
-        "https://*.chatgpt.com/*",
         "https://claude.ai/*",
         "https://gemini.google.com/*"
       ]

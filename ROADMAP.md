@@ -7,6 +7,7 @@ The project is ready for a small GitHub-distributed beta. The Chrome Web Store r
 - Gemini, ChatGPT, and Claude adapters are implemented.
 - Wallpaper images and settings remain local to browser extension storage.
 - Provider matching has unit coverage and public-page DOM monitoring.
+- Local light/dark browser regressions gate releases separately from live-site monitoring. Authenticated checks are implemented but require session state before their results can be verified.
 - The extension can be built from source and downloaded as a GitHub release zip.
 - Beta feedback is collected through GitHub Issues with provider, browser, route, and screenshot details.
 

@@ -13,7 +13,7 @@ beforeEach(() => {
   // Bun has no Web Locks; cross-tab serialization is tested in Chromium.
   Object.defineProperty(navigator, 'locks', {
     configurable: true,
-    value: { request: (_name: string, callback: () => Promise<void>) => callback() }
+    value: { request: (_name: string, _options: LockOptions, callback: () => Promise<void>) => callback() }
   });
   globalThis.chrome = {
     storage: {
@@ -39,10 +39,10 @@ test('selects ChatGPT for chatgpt.com pages', () => {
   expect(provider?.id).toBe('chatgpt');
 });
 
-test('selects ChatGPT for ChatGPT subdomains', () => {
+test('does not select ChatGPT authentication subdomains', () => {
   const provider = getProvider(new URL('https://auth.chatgpt.com/'));
 
-  expect(provider?.id).toBe('chatgpt');
+  expect(provider).toBeUndefined();
 });
 
 test('does not select ChatGPT for lookalike domains', () => {
@@ -77,14 +77,14 @@ test('Claude transparency rules only target the requested layers', () => {
   expect(claudeStylesheet).not.toContain('.bg-surface-3');
 });
 
-test('keeps legacy wallpaper settings across version bumps by migrating them forward', async () => {
+test('normalizes a legacy settings version without losing the wallpaper', async () => {
   const stored = {
     llm_wallpaper_settings: {
       imageDataUrl: 'data:image/png;base64,legacy',
       fileName: 'legacy.png',
       opacity: 0.4,
       blur: 6,
-      version: 1
+      version: 0
     }
   };
 
@@ -111,6 +111,50 @@ test('keeps legacy wallpaper settings across version bumps by migrating them for
 
   expect(stored.llm_wallpaper_settings.version).toBe(1);
   expect(stored.llm_wallpaper_settings.opacity).toBe(0.9);
+});
+
+test('clamps stored effects and falls back for non-finite values', async () => {
+  let stored: any = { opacity: -2, blur: 100 };
+  globalThis.chrome.storage.local.get = (async () => ({ llm_wallpaper_settings: stored })) as any;
+  expect(await getSettings()).toMatchObject({ opacity: 0.05, blur: 20 });
+  stored = { opacity: Infinity, blur: NaN };
+  expect(await getSettings()).toMatchObject({ opacity: 0.15, blur: 0 });
+  stored = { opacity: 5, blur: -10, imageDataUrl: 'https://example.com/image.png' };
+  expect(await getSettings()).toMatchObject({ opacity: 1, blur: 0, imageDataUrl: null });
+});
+
+test('normalizes settings before saving', async () => {
+  let stored: any;
+  globalThis.chrome.storage.local.set = (async (value: any) => { stored = value.llm_wallpaper_settings; }) as any;
+  await saveSettings({ opacity: -1, blur: Infinity, imageDataUrl: 'not an image' });
+  expect(stored).toMatchObject({ opacity: 0.05, blur: 0, imageDataUrl: null });
+});
+
+test('rejects oversized GIF uploads before reading them', async () => {
+  const gif = new File([new Uint8Array(10 * 1024 * 1024 + 1)], 'large.gif', { type: 'image/gif' });
+  await expect(compressImageToDataUrl(gif)).rejects.toThrow('10 MiB');
+});
+
+test('rejects files without an image MIME type', async () => {
+  await expect(compressImageToDataUrl(new File(['text'], 'fake.gif', { type: 'text/plain' }))).rejects.toThrow('image file');
+});
+
+test('closes the bitmap when image encoding fails', async () => {
+  const originalBitmap = globalThis.createImageBitmap;
+  const originalCanvas = globalThis.OffscreenCanvas;
+  let closed = false;
+  globalThis.createImageBitmap = (async () => ({ width: 10, height: 10, close: () => { closed = true; } })) as any;
+  globalThis.OffscreenCanvas = class {
+    getContext() { return { drawImage() {} }; }
+    async convertToBlob() { throw new Error('Encoding failed'); }
+  } as any;
+  try {
+    await expect(compressImageToDataUrl(new File(['image'], 'image.png', { type: 'image/png' }))).rejects.toThrow('Encoding failed');
+    expect(closed).toBe(true);
+  } finally {
+    globalThis.createImageBitmap = originalBitmap;
+    globalThis.OffscreenCanvas = originalCanvas;
+  }
 });
 
 test('preserves animated GIFs without converting them to webp', async () => {
