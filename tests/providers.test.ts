@@ -5,6 +5,8 @@ import { afterAll, beforeEach, expect, test } from 'bun:test';
 import { getProvider } from '../src/providers';
 import { getSettings, saveSettings } from '../src/utils/storage';
 import { compressImageToDataUrl } from '../src/utils/imageCompressor';
+import { WALLPAPER_PRESETS } from '../src/wallpapers/presets';
+import * as settingsStore from '../src/utils/storage';
 
 const originalChrome = globalThis.chrome;
 const originalLocks = Object.getOwnPropertyDescriptor(navigator, 'locks');
@@ -105,11 +107,11 @@ test('normalizes a legacy settings version without losing the wallpaper', async 
   expect(settings.fileName).toBe('legacy.png');
   expect(settings.opacity).toBe(0.4);
   expect(settings.blur).toBe(6);
-  expect(settings.version).toBe(1);
+  expect(settings.version).toBe(6);
 
   await saveSettings({ opacity: 0.9 });
 
-  expect(stored.llm_wallpaper_settings.version).toBe(1);
+  expect(stored.llm_wallpaper_settings.version).toBe(6);
   expect(stored.llm_wallpaper_settings.opacity).toBe(0.9);
 });
 
@@ -123,11 +125,64 @@ test('clamps stored effects and falls back for non-finite values', async () => {
   expect(await getSettings()).toMatchObject({ opacity: 1, blur: 0, imageDataUrl: null });
 });
 
+test('legacy settings remain enabled without losing the image', async () => {
+  globalThis.chrome.storage.local.get = (async () => ({ llm_wallpaper_settings: {
+    imageDataUrl: 'data:image/png;base64,legacy', fileName: 'legacy.png', opacity: 0.4, blur: 6, version: 1
+  } })) as any;
+  expect(await getSettings()).toMatchObject({ enabled: true, imageDataUrl: 'data:image/png;base64,legacy', fileName: 'legacy.png', opacity: 0.4, blur: 6, version: 6 });
+});
+
 test('normalizes settings before saving', async () => {
   let stored: any;
   globalThis.chrome.storage.local.set = (async (value: any) => { stored = value.llm_wallpaper_settings; }) as any;
   await saveSettings({ opacity: -1, blur: Infinity, imageDataUrl: 'not an image' });
   expect(stored).toMatchObject({ opacity: 0.05, blur: 0, imageDataUrl: null });
+});
+
+test('readability defaults preserve existing settings and clamp invalid input', async () => {
+  globalThis.chrome.storage.local.get = (async () => ({ llm_wallpaper_settings: { dimming: 8, dimTone: 'unknown' } })) as any;
+  expect(await getSettings()).toMatchObject({ dimming: 1, dimTone: 'dark' });
+  globalThis.chrome.storage.local.get = (async () => ({ llm_wallpaper_settings: { dimming: Infinity } })) as any;
+  expect(await getSettings()).toMatchObject({ dimming: 0, dimTone: 'dark' });
+});
+
+test('unknown presets fall back to the retained custom upload', async () => {
+  globalThis.chrome.storage.local.get = (async () => ({ llm_wallpaper_settings: { presetId: 'missing', imageDataUrl: 'data:image/png;base64,legacy', fileName: 'legacy.png' } })) as any;
+  expect(await getSettings()).toMatchObject({ presetId: null, imageDataUrl: 'data:image/png;base64,legacy', fileName: 'legacy.png' });
+});
+
+test('placement normalizes fit and finite position limits', async () => {
+  globalThis.chrome.storage.local.get = (async () => ({ llm_wallpaper_settings: { fit: 'stretch', positionX: -10, positionY: 150 } })) as any;
+  expect(await getSettings()).toMatchObject({ fit: 'cover', positionX: 0, positionY: 100 });
+  globalThis.chrome.storage.local.get = (async () => ({ llm_wallpaper_settings: { positionX: Infinity, positionY: NaN } })) as any;
+  expect(await getSettings()).toMatchObject({ fit: 'cover', positionX: 50, positionY: 50 });
+});
+
+test('provider overrides inherit invalid values and cannot replace the source', async () => {
+  globalThis.chrome.storage.local.get = (async () => ({ llm_wallpaper_settings: {
+    enabled: true, opacity: 0.7, imageDataUrl: 'data:image/png;base64,legacy',
+    providerOverrides: { chatgpt: { opacity: Infinity, blur: 8, imageDataUrl: 'bad' }, evil: { enabled: false } }
+  } })) as any;
+  const settings = await getSettings();
+  expect((settingsStore as any).getEffectiveSettings?.(settings, 'chatgpt')).toMatchObject({ opacity: 0.7, blur: 8, imageDataUrl: 'data:image/png;base64,legacy' });
+  expect((settings as any).providerOverrides).toEqual({ chatgpt: { blur: 8 } });
+  expect((settingsStore as any).getEffectiveSettings?.({ ...settings, enabled: false }, 'chatgpt').enabled).toBe(false);
+});
+
+test('future settings versions are never silently overwritten', async () => {
+  globalThis.chrome.storage.local.get = (async () => ({ llm_wallpaper_settings: { version: 99, imageDataUrl: 'data:image/png;base64,legacy' } })) as any;
+  let wrote = false;
+  globalThis.chrome.storage.local.set = (async () => { wrote = true; }) as any;
+  await expect(saveSettings({ opacity: 0.5 })).rejects.toThrow('newer');
+  expect(wrote).toBe(false);
+});
+
+test('bundled preset assets are self-contained and script-free', () => {
+  for (const preset of WALLPAPER_PRESETS) {
+    const svg = readFileSync(new URL(`../public/${preset.path}`, import.meta.url), 'utf8');
+    expect(svg).toContain('<svg');
+    expect(svg).not.toMatch(/<(?:script|foreignObject)\b|(?:href|src)=["'](?:https?:|\/\/)/i);
+  }
 });
 
 test('rejects oversized GIF uploads before reading them', async () => {

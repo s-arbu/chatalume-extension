@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LLM Wallpapers</title>
+  <link rel="stylesheet" href="src/popup/popup.css">
+</head>
+<body class="toolbar">
+  <div class="dashboard">
+    <header><h1>LLM Wallpapers</h1></header>
+    <div class="section">
+      <img id="wallpaperPreview" style="width: 96px; height: 60px; object-fit: cover; margin-bottom: 12px; border-radius: 4px" hidden alt="Selected wallpaper">
+      <div class="file-name" id="fileNameDisplay" role="status" aria-label="Wallpaper source">No file chosen</div>
+      <p id="uploadError" role="alert" style="margin-top: 12px" hidden></p>
+      <p id="saveStatus" role="status" aria-label="Save status" style="margin-top: 12px"></p>
+    </div>
+    <div class="section">
+      <div class="field"><label><input type="checkbox" id="enabledInput"> Enable wallpaper</label></div>
+      <div class="field">
+        <div class="label-row"><label for="opacityInput">Opacity</label><span id="opacityVal">15%</span></div>
+        <input type="range" id="opacityInput" min="0.05" max="1" step="0.05">
+      </div>
+      <div class="field">
+        <div class="label-row"><label for="blurInput">Blur Radius</label><span id="blurVal">0px</span></div>
+        <input type="range" id="blurInput" min="0" max="20" step="1">
+      </div>
+      <div class="field">
+        <div class="label-row"><label for="dimmingInput">Blend strength</label><span id="dimmingVal">0%</span></div>
+        <input type="range" id="dimmingInput" min="0" max="1" step="0.05">
+      </div>
+      <div class="field"><label for="dimToneInput">Blend tone</label> <select id="dimToneInput"><option value="dark">Dark</option><option value="light">Light</option></select></div>
+      <div class="field"><label for="fitInput">Image fit</label> <select id="fitInput"><option value="cover">Cover — fill the page</option><option value="contain">Contain — show the whole image</option></select></div>
+      <div class="field"><div class="label-row"><label for="positionXInput">Horizontal position</label><span id="positionXVal">50%</span></div><input type="range" id="positionXInput" min="0" max="100" step="1"></div>
+      <div class="field"><div class="label-row"><label for="positionYInput">Vertical position</label><span id="positionYVal">50%</span></div><input type="range" id="positionYInput" min="0" max="100" step="1"></div>
+      <button type="button" id="resetEffectsBtn" class="btn btn-secondary">Reset effects</button>
+    </div>
+    <button type="button" id="manageWallpaperBtn" class="btn btn-primary">Manage wallpaper</button>
+  </div>
+  <script type="module" src="src/popup/toolbar.ts"></script>
+</body>
+</html>

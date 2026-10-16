@@ -3,110 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>LLM Wallpapers Settings</title>
-  <style>
-    :root {
-      --bg: #09090b;
-      --card-bg: #18181b;
-      --text-main: #f4f4f5;
-      --text-muted: #a1a1aa;
-      --border: #27272a;
-      --accent: #3b82f6;
-      --accent-hover: #2563eb;
-      --danger: #ef4444;
-      --danger-hover: #dc2626;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: system-ui, -apple-system, sans-serif;
-      background-color: var(--bg);
-      color: var(--text-main);
-    }
-
-    .dashboard {
-      width: 100%;
-      max-width: 480px;
-      padding: 32px;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-    }
-
-    header { margin-bottom: 32px; text-align: center; }
-    .brand-mark { width: 64px; height: 64px; display: block; margin: 0 auto 16px; }
-    h1 { margin: 0 0 8px 0; font-size: 24px; font-weight: 600; }
-    p { margin: 0; color: var(--text-muted); font-size: 14px; }
-
-    .section {
-      margin-bottom: 24px;
-      padding-bottom: 24px;
-      border-bottom: 1px solid var(--border);
-    }
-    .section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-    
-    .section-title {
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-muted);
-      margin-bottom: 16px;
-      font-weight: 600;
-    }
-
-    /* File Upload Row */
-    .file-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    
-    .btn {
-      padding: 8px 16px;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      border: none;
-      transition: background 0.2s;
-    }
-    .btn-primary { background: var(--accent); color: white; display: inline-block; }
-    .btn-primary:hover { background: var(--accent-hover); }
-    .btn-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid var(--danger); display: none; }
-    .btn-danger:hover { background: var(--danger); color: white; }
-    .btn-secondary { background: transparent; color: var(--text-main); border: 1px solid var(--border); text-decoration: none; display: inline-block; }
-    .btn-secondary:hover { background: var(--border); }
-
-    .file-name {
-      flex-grow: 1;
-      font-size: 14px;
-      color: var(--text-muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    /* Slider Controls */
-    .field { margin-bottom: 16px; }
-    .field:last-child { margin-bottom: 0; }
-    .label-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 8px;
-      font-size: 14px;
-    }
-    .val-display { color: var(--accent); font-weight: 500; }
-
-    input[type="range"] {
-      width: 100%;
-      accent-color: var(--accent);
-      cursor: pointer;
-    }
-  </style>
+  <link rel="stylesheet" href="src/popup/popup.css">
 </head>
 <body>
 
@@ -119,19 +16,26 @@
 
     <div class="section">
       <div class="section-title">Background Source</div>
+      <fieldset id="presetGallery"><legend>Wallpaper presets</legend><label><input type="radio" name="wallpaperSource" value="upload"> Use my upload</label></fieldset>
+      <img id="wallpaperPreview" style="width: 96px; height: 60px; object-fit: cover; margin-bottom: 12px; border-radius: 4px" hidden alt="Selected wallpaper">
       <div class="file-row">
         <button type="button" id="chooseFileBtn" class="btn btn-primary">Choose File</button>
         <input type="file" id="imageInput" accept="image/*,.gif,.png,.jpg,.jpeg,.webp" hidden>
         
-        <div class="file-name" id="fileNameDisplay" role="status">No file chosen</div>
-        <button id="resetBtn" class="btn btn-danger">Remove</button>
+        <div class="file-name" id="fileNameDisplay" role="status" aria-label="Wallpaper source">No file chosen</div>
+        <button id="resetBtn" class="btn btn-danger">Remove wallpaper</button>
       </div>
       <p style="margin-top: 12px">Images up to 10 MiB. Stored locally; displayed images can be read by the supported website. Avoid sensitive images.</p>
       <p id="uploadError" role="alert" style="margin-top: 12px" hidden></p>
+      <p id="saveStatus" role="status" aria-label="Save status" style="margin-top: 12px"></p>
     </div>
 
     <div class="section">
       <div class="section-title">Visual Effects</div>
+      <div class="field"><label for="providerScope">Settings scope</label> <select id="providerScope"><option value="global">All providers</option><option value="chatgpt">ChatGPT</option><option value="claude">Claude</option><option value="gemini">Gemini</option></select></div>
+      <p id="scopeNotice" style="margin-bottom: 12px">Wallpaper source and these defaults apply to all providers.</p>
+      <button id="inheritBtn" type="button" class="btn btn-secondary" style="margin-bottom: 12px" hidden>Use global settings</button>
+      <div class="field"><label><input type="checkbox" id="enabledInput"> Enable wallpaper</label></div>
       <div class="field">
         <div class="label-row">
           <label for="opacityInput">Opacity</label>
@@ -147,6 +51,15 @@
         </div>
         <input type="range" id="blurInput" min="0" max="20" step="1">
       </div>
+      <div class="field">
+        <div class="label-row"><label for="dimmingInput">Blend strength</label><span id="dimmingVal">0%</span></div>
+        <input type="range" id="dimmingInput" min="0" max="1" step="0.05">
+      </div>
+      <div class="field"><label for="dimToneInput">Blend tone</label> <select id="dimToneInput"><option value="dark">Dark</option><option value="light">Light</option></select></div>
+      <div class="field"><label for="fitInput">Image fit</label> <select id="fitInput"><option value="cover">Cover — fill the page</option><option value="contain">Contain — show the whole image</option></select></div>
+      <div class="field"><div class="label-row"><label for="positionXInput">Horizontal position</label><span id="positionXVal">50%</span></div><input type="range" id="positionXInput" min="0" max="100" step="1"></div>
+      <div class="field"><div class="label-row"><label for="positionYInput">Vertical position</label><span id="positionYVal">50%</span></div><input type="range" id="positionYInput" min="0" max="100" step="1"></div>
+      <button id="resetEffectsBtn" type="button" class="btn btn-secondary">Reset effects</button>
     </div>
 
     <div class="section">

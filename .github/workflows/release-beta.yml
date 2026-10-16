@@ -28,10 +28,11 @@ jobs:
       - name: Check wallpaper behavior
         run: bun run test:browser
       - name: Package release zip
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
         run: |
-          mkdir -p out
-          cd dist
-          zip -r ../out/llm-wallpapers-${{ github.ref_name }}.zip .
+          bun scripts/check-release.ts "$RELEASE_TAG"
+          bun scripts/package-release.ts
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:

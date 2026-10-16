@@ -42,13 +42,19 @@ This does not bypass authentication. It tests with an account the project mainta
 - Manual verification on fresh install, upgrade, reset, and provider navigation flows.
 - Release notes, support expectations, and a rollback version.
 
-## V2: Wallpaper Sources
+## Implemented: Everyday Controls and Wallpaper Sources
 
-The proposed V2 direction is sound and should preserve the local-only boundary:
+- Toolbar controls with a persistent full settings tab for image processing.
+- Global pause, separate remove/reset actions, thumbnail and save/error feedback.
+- Explicit readability blending, cover/contain, and image position.
+- Offline Mist, Dusk, and Paper presets alongside the retained custom upload.
+- Optional per-provider visual effects with global pause taking precedence.
+- Schema-6 migrations preserve existing uploads; future-version writes are refused.
 
-- Ship a small curated gallery of bundled presets that can be selected without an upload.
-- Keep user-uploaded wallpapers as a separate source and preserve the current compression path.
-- Store a stable preset id or local image data, not remote image URLs that can disappear or change.
-- Defer cloud sync, accounts, and a shared user gallery until there is a clear privacy and hosting decision.
+## Release Recovery
 
-The gallery should follow beta stabilization so it does not add a second source of wallpaper state while provider behavior is still changing.
+Before an upgrade, retain a copy of the complete `llm_wallpaper_settings` object in a safe local place. It contains the selected image and filename and should be treated as personal data. Do not attach it to public bug reports.
+
+A recovery release should carry the earlier working behavior while keeping the latest settings reader, and use a higher extension version for store distribution. Never clear local storage or downgrade its schema to recover a renderer bug. Verify the recovered artifact with an existing upload and provider overrides before publishing.
+
+The GitHub ZIP is generated locally by `bun run build:release`; publishing and Chrome Web Store distribution remain separate actions. Authenticated layouts and manual browser coverage still require recorded evidence.

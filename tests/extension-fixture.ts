@@ -74,10 +74,12 @@ export async function openSettings(context: BrowserContext) {
 }
 
 export async function enableWallpaper(context: BrowserContext) {
-  const worker = context.serviceWorkers()[0] ?? await context.waitForEvent('serviceworker');
-  await worker.evaluate(() => chrome.storage.local.set({ llm_wallpaper_settings: {
+  const page = await openSettings(context);
+  const response = await page.evaluate(() => chrome.runtime.sendMessage({ type: 'save-wallpaper-settings', patch: {
     imageDataUrl: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==',
-    fileName: 'wallpaper.gif', opacity: 0.15, blur: 0, version: 1
+    fileName: 'wallpaper.gif', opacity: 0.15, blur: 0, enabled: true
   } }));
+  expect(response.ok).toBe(true);
+  await page.close();
 }
 

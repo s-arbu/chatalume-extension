@@ -12,8 +12,8 @@
   height: 100vh !important;
   z-index: -999999 !important;
   pointer-events: none !important;
-  background-size: cover !important;
-  background-position: center !important;
+  background-size: cover;
+  background-position: center;
   background-repeat: no-repeat !important;
   transition: opacity 0.15s ease, filter 0.15s ease;
   transform: translateZ(0);

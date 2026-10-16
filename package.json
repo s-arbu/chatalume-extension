@@ -1,12 +1,12 @@
 {
   "name": "llm-wallpapers",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "module": "src/content/content.ts",
   "type": "module",
   "scripts": {
     "build": "vite build && vite build --config vite.content.config.ts",
-    "build:release": "rm -rf out && mkdir -p out && bun run build && cd dist && zip -r ../out/llm-wallpapers-v0.1.0.zip .",
-    "test:unit": "bun test tests/providers.test.ts",
+    "build:release": "bun run build && bun scripts/package-release.ts",
+    "test:unit": "bun test tests/*.test.ts",
     "test:dom": "bunx playwright test",
     "test:browser": "bunx playwright test wallpaper.spec.ts",
     "test:monitor": "bunx playwright test dom-check.spec.ts"

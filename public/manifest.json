@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "LLM Wallpapers - beta",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Custom wallpapers and themes for ChatGPT, Claude, and Gemini.",
   "icons": {
     "16": "logo-16.png",
@@ -15,6 +15,7 @@
     "https://gemini.google.com/*"
   ],
   "action": {
+    "default_popup": "toolbar.html",
     "default_title": "LLM Wallpapers",
     "default_icon": {
       "16": "logo-16.png",
@@ -22,8 +23,10 @@
       "128": "logo-128.png"
     }
   },
+  "options_ui": { "page": "popup.html", "open_in_tab": true },
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
   "content_scripts": [
     {
@@ -38,7 +41,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["providers/*.css"],
+      "resources": ["providers/*.css", "wallpapers/*.svg"],
       "matches": [
         "https://chatgpt.com/*",
         "https://claude.ai/*",

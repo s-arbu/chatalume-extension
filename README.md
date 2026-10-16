@@ -29,6 +29,14 @@ Use it to put your own image behind [ChatGPT](https://chatgpt.com/), [Claude](ht
 - Gemini
 - more coming soon...
 
+## Customize your wallpaper
+
+Open the toolbar popup to pause the wallpaper, adjust opacity and blur, blend it towards a dark or light tone, or change image fit and position. Changes apply to open supported tabs and are saved locally. **Manage wallpaper** opens the full settings tab for uploads and the bundled Mist, Dusk, and Paper presets.
+
+Choosing a preset keeps your custom upload so you can switch back with **Use my upload**. **Remove wallpaper** deletes the saved upload and preset selection. **Reset effects** restores the visual defaults while preserving the image and enabled state.
+
+The full settings tab also offers **Settings scope**. All providers edits global defaults; ChatGPT, Claude, and Gemini can override visual effects individually. **Use global settings** removes that provider's override. The wallpaper source is shared, and global disable pauses every provider even if it has an enabled override. Resetting global effects keeps explicit provider overrides; **Reset provider effects** resets only the selected provider's effects.
+
 ## Why this exists
 
 Most AI chat UIs are clean, but they can also feel cold and generic. LLM Wallpapers lets you keep the clean layout while adding a background that feels more like your own setup.
@@ -110,9 +118,16 @@ The extension stores wallpaper settings in browser local storage under one objec
 - `fileName`: selected image filename, or `null`
 - `opacity`: number between `0.05` and `1`
 - `blur`: blur amount in pixels
-- `version`: schema version, currently `1`
+- `version`: schema version, currently `6`
+- `enabled`: global pause switch; default `true`
+- `dimming`, `dimTone`: blend strength 0–1 and dark/light tone
+- `fit`, `positionX`, `positionY`: cover/contain and coordinates 0–100
+- `presetId`: active bundled preset ID or `null`; the custom upload stays saved
+- `providerOverrides`: optional per-provider effects; source data remains global
 
-The schema is intentionally kept stable so older settings can be migrated forward instead of being reset when fields change.
+The current settings schema is version `6`. Older records gain defaults while retaining the upload, filename, opacity, and blur. Writes to a newer schema are refused so an older extension cannot silently overwrite newer settings. Image processing stays in the full tab; the service worker serializes accepted UI writes so closing a toolbar popup does not discard its last accepted change.
+
+Bundled SVGs are original project artwork under the MIT license. See [preset provenance](docs/wallpaper-presets.md).
 
 ### Verification
 
@@ -125,6 +140,8 @@ bun run build
 bunx playwright install chromium
 bun run test:browser
 ```
+
+Build the reviewed ZIP with `bun run build:release` (Python 3 is required for ZIP packaging; the extension itself has no Python dependency). Packaging checks source/built versions and referenced UI/assets. Tagged releases must match both package and manifest versions; select the matching version tag for a manual release workflow run.
 
 The browser suite loads the built extension against local page fixtures. It checks uploads, overlapping saves, errors, effect validation, navigation, reload, removal, keyboard controls, and light/dark modes. These checks run on pushes, pull requests, and before release packaging.
 
@@ -150,9 +167,9 @@ Before shipping:
 - [x] provider adapter boundary
 - [x] automated provider matching and DOM checks
 - [x] beta readiness: provider smoke checks and release checklist
+- [x] bundled wallpaper presets
+- [x] user-uploaded wallpapers alongside presets
 - [ ] pre-release: Chrome Web Store packaging, privacy review, and rollback plan
-- [ ] V2: bundled wallpaper presets
-- [ ] V2: user-uploaded wallpapers alongside presets
 
 See [ROADMAP.md](ROADMAP.md) for the broader plan and the authenticated test-state notes.
 

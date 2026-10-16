@@ -1,5 +1,6 @@
-import { getSettings, normalizeSettings, WallpaperSettings } from '../utils/storage';
+import { getEffectiveSettings, getSettings, normalizeSettings, WallpaperSettings } from '../utils/storage';
 import { getProvider } from '../providers';
+import { resolveWallpaper } from '../utils/wallpaperSource';
 
 const provider = getProvider(new URL(window.location.href));
 let currentSettings: WallpaperSettings | undefined;
@@ -23,14 +24,15 @@ function injectOverlay() {
 }
 
 function restoreProviderUi() {
-  if (!currentSettings?.imageDataUrl?.startsWith('data:image')) {
+  const settings = currentSettings && provider ? getEffectiveSettings(currentSettings, provider.id) : undefined;
+  if (!settings?.enabled || !resolveWallpaper(settings)) {
     document.getElementById('llm-wallpaper-overlay')?.remove();
     document.querySelector(`link[data-llm-wallpaper-provider="${provider?.id}"]`)?.remove();
     return;
   }
   loadProviderStylesheet();
   injectOverlay();
-  applySettings(currentSettings);
+  applySettings(settings);
 }
 
 function applySettings(settings: WallpaperSettings) {
@@ -38,8 +40,13 @@ function applySettings(settings: WallpaperSettings) {
   if (!overlay) return;
 
   // Apply directly to the element, avoiding :root CSS variables entirely
-  if (settings.imageDataUrl && settings.imageDataUrl.startsWith('data:image')) {
-    overlay.style.backgroundImage = `url("${settings.imageDataUrl}")`;
+  const source = resolveWallpaper(settings);
+  if (source) {
+    const tone = settings.dimTone === 'light' ? '255,255,255' : '0,0,0';
+    const color = `rgba(${tone},${settings.dimming})`;
+    overlay.style.backgroundImage = `linear-gradient(${color},${color}), url("${source.url}")`;
+    overlay.style.backgroundSize = `100% 100%, ${settings.fit}`;
+    overlay.style.backgroundPosition = `center, ${settings.positionX}% ${settings.positionY}%`;
   } else {
     overlay.style.backgroundImage = 'none';
   }
@@ -56,7 +63,8 @@ async function init() {
   restoreProviderUi();
 
   const observer = new MutationObserver(() => {
-    if (currentSettings?.imageDataUrl?.startsWith('data:image') &&
+    const settings = currentSettings ? getEffectiveSettings(currentSettings, provider.id) : undefined;
+    if (settings?.enabled && resolveWallpaper(settings) &&
         (!document.getElementById('llm-wallpaper-overlay') ||
          !document.querySelector(`link[data-llm-wallpaper-provider="${provider.id}"]`))) {
       restoreProviderUi();

@@ -3,10 +3,19 @@
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "types": ["chrome", "bun"],
+    "types": [
+      "chrome",
+      "bun"
+    ],
     "strict": true,
     "skipLibCheck": true,
     "noEmit": true
   },
-  "include": ["src/**/*", "tests/**/*", "vite.config.ts", "playwright.config.ts"]
+  "include": [
+    "src/**/*",
+    "tests/**/*",
+    "vite.config.ts",
+    "playwright.config.ts",
+    "scripts/**/*.ts"
+  ]
 }
