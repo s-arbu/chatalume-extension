@@ -15,7 +15,7 @@ The project is ready for a small GitHub-distributed beta. The Chrome Web Store r
 
 1. [x] Add authenticated Playwright checks for routes that are unavailable behind login walls.
 2. [x] Add provider smoke checks that verify the overlay and stylesheet load, not only a landing-page selector.
-3. [x] Run the checks across supported Chromium versions and document known provider-specific failures.
+3. [ ] Record manual coverage for current stable Chrome and Brave; fixture coverage currently uses Playwright-managed Chromium only.
 4. [x] Define a small issue template for provider, browser version, route, and screenshot.
 5. [x] Freeze the wallpaper settings shape for the beta and document migration expectations.
 6. [x] Document GitHub beta installation and release workflow.
@@ -44,6 +44,9 @@ This does not bypass authentication. It tests with an account the project mainta
 
 ## Implemented: Everyday Controls and Wallpaper Sources
 
+- On-page right-center control for current-provider pause/resume, reset, and settings; keyboard dismissal and compact narrow-window layout.
+- Theme-aware rectangular switch and a global General setting to hide the whole on-page control without changing wallpaper state.
+- Localized reading comfort (Off / Enabled): text-based bounds, feathered blur, streaming/scroll clipping, theme changes, and provider preferences. No welcome/composer treatment or opaque Solid mode. Gemini light-mode conversation and new-chat behavior checked live; other provider acceptance remains open.
 - Toolbar controls with a persistent full settings tab for image processing.
 - Global pause, separate remove/reset actions, thumbnail and save/error feedback.
 - Explicit readability blending, cover/contain, and image position.
@@ -58,3 +61,7 @@ Before an upgrade, retain a copy of the complete `llm_wallpaper_settings` object
 A recovery release should carry the earlier working behavior while keeping the latest settings reader, and use a higher extension version for store distribution. Never clear local storage or downgrade its schema to recover a renderer bug. Verify the recovered artifact with an existing upload and provider overrides before publishing.
 
 The GitHub ZIP is generated locally by `bun run build:release`; publishing and Chrome Web Store distribution remain separate actions. Authenticated layouts and manual browser coverage still require recorded evidence.
+
+## Next: Public Launch
+
+See [the October 30 public-launch roadmap](docs/superpowers/plans/2026-10-30-public-launch-roadmap.md) and [first-batch implementation evidence](docs/superpowers/plans/2026-10-30-chat-quick-controls.md). Gemini account avatar/name were visible in the current signed-in Brave layout during an enabled/paused comparison; issue #1 remains open because the original disappearance was not reproduced. This is not full authenticated provider coverage.

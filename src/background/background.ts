@@ -1,14 +1,31 @@
-import { DEFAULT_EFFECTS, normalizeSettings, saveProviderSettings, saveSettings } from '../utils/storage';
+import { DEFAULT_EFFECTS, READING_COMFORT_MODES, normalizeSettings, saveProviderSettings, saveSettings } from '../utils/storage';
 import { PROVIDER_IDS } from '../providers/types';
+import { getProvider } from '../providers';
 
 chrome.runtime.onInstalled.addListener(() => {
   saveSettings({}).catch((error) => console.error('Could not migrate wallpaper settings:', error));
 });
 
 chrome.runtime.onMessage.addListener((message, sender, respond) => {
+  if (message?.type === 'wallpaper-quick-action') {
+    const provider = sender.url ? getProvider(new URL(sender.url)) : undefined;
+    const validAction = message.action === 'open-settings' || message.action === 'reset-effects' ||
+      message.action === 'set-enabled' && typeof message.enabled === 'boolean' ||
+      message.action === 'set-reading-comfort' && READING_COMFORT_MODES.includes(message.mode);
+    if (sender.id !== chrome.runtime.id || !sender.tab || sender.frameId !== 0 || !provider || !validAction ||
+        Object.keys(message).some((key) => !['type', 'action', ...(message.action === 'set-enabled' ? ['enabled'] : message.action === 'set-reading-comfort' ? ['mode'] : [])].includes(key))) {
+      respond({ ok: false, error: 'Invalid quick-controls request.' });
+      return;
+    }
+    const save = message.action === 'open-settings' ? chrome.runtime.openOptionsPage()
+      : saveProviderSettings(provider.id, message.action === 'reset-effects' ? DEFAULT_EFFECTS
+        : message.action === 'set-reading-comfort' ? { readingComfort: message.mode } : { enabled: message.enabled });
+    save.then(() => respond({ ok: true }), (error) => respond({ ok: false, error: error instanceof Error ? error.message : 'Could not save. Please try again.' }));
+    return true;
+  }
   if (message?.type !== 'save-wallpaper-settings') return;
   const providerRequest = message.providerId !== undefined;
-  const allowed = providerRequest ? ['enabled', ...Object.keys(DEFAULT_EFFECTS)] : Object.keys(normalizeSettings()).filter((key) => key !== 'version' && key !== 'providerOverrides');
+  const allowed = providerRequest ? ['enabled', 'readingComfort', ...Object.keys(DEFAULT_EFFECTS)] : Object.keys(normalizeSettings()).filter((key) => key !== 'version' && key !== 'providerOverrides');
   const validPatch = providerRequest && message.patch === null || message.patch && typeof message.patch === 'object' && !Array.isArray(message.patch) && Object.keys(message.patch).every((key) => allowed.includes(key));
   if (sender.id !== chrome.runtime.id || !sender.url?.startsWith(chrome.runtime.getURL('')) ||
       !validPatch || providerRequest && !PROVIDER_IDS.includes(message.providerId)) {

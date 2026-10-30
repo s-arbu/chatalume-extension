@@ -1,0 +1,25 @@
+html[data-llm-wallpaper-comfort] {
+  --llm-reading-surface: #fff;
+  --llm-reading-tint: rgb(255 255 255 / .28);
+}
+html[data-llm-wallpaper-comfort="dark"] {
+  --llm-reading-surface: #171717;
+  --llm-reading-tint: rgb(23 23 23 / .48);
+}
+#llm-reading-comfort {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: -999998 !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+}
+#llm-reading-comfort .llm-comfort-region {
+  position: absolute !important;
+  pointer-events: none !important;
+  border-radius: 32px;
+  background: var(--llm-reading-tint);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent), linear-gradient(to bottom, transparent, #000 24px, #000 calc(100% - 24px), transparent);
+  mask-composite: intersect;
+}

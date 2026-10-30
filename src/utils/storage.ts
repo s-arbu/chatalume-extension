@@ -1,7 +1,15 @@
 import { WALLPAPER_PRESETS } from '../wallpapers/presets';
 import { PROVIDER_IDS, type ProviderId } from '../providers/types';
+export const READING_COMFORT_MODES = ['off', 'soft'] as const;
+export type ReadingComfortMode = typeof READING_COMFORT_MODES[number];
 
-export type ProviderOverrides = Partial<Pick<WallpaperSettings, 'enabled' | keyof typeof DEFAULT_EFFECTS>>;
+function comfortMode(value: unknown): ReadingComfortMode | undefined {
+  if (value === true || value === 'solid') return 'soft';
+  if (value === false) return 'off';
+  return READING_COMFORT_MODES.includes(value as ReadingComfortMode) ? value as ReadingComfortMode : undefined;
+}
+
+export type ProviderOverrides = Partial<Pick<WallpaperSettings, 'enabled' | 'readingComfort' | keyof typeof DEFAULT_EFFECTS>>;
 
 export interface WallpaperSettings {
   imageDataUrl: string | null;
@@ -10,6 +18,8 @@ export interface WallpaperSettings {
   blur: number;
   version: number;
   enabled: boolean;
+  showChatControls: boolean;
+  readingComfort: ReadingComfortMode;
   dimming: number;
   dimTone: 'dark' | 'light';
   presetId: string | null;
@@ -19,7 +29,7 @@ export interface WallpaperSettings {
   providerOverrides: Partial<Record<ProviderId, ProviderOverrides>>;
 }
 
-const CURRENT_SETTINGS_VERSION = 6;
+const CURRENT_SETTINGS_VERSION = 10;
 
 export const DEFAULT_EFFECTS = { opacity: 0.15, blur: 0, dimming: 0, dimTone: 'dark' as const, fit: 'cover' as const, positionX: 50, positionY: 50 };
 
@@ -28,6 +38,8 @@ const DEFAULT_SETTINGS: WallpaperSettings = {
   fileName: null,
   ...DEFAULT_EFFECTS,
   enabled: true,
+  showChatControls: true,
+  readingComfort: 'soft',
   presetId: null,
   providerOverrides: {},
   version: CURRENT_SETTINGS_VERSION
@@ -46,18 +58,23 @@ function normalizeProviderOverride(value: unknown): ProviderOverrides {
     }
   }
   if (typeof raw.enabled === 'boolean') result.enabled = raw.enabled;
+  const comfort = comfortMode(raw.readingComfort);
+  if (comfort) result.readingComfort = comfort;
   if (raw.dimTone === 'dark' || raw.dimTone === 'light') result.dimTone = raw.dimTone;
   if (raw.fit === 'cover' || raw.fit === 'contain') result.fit = raw.fit;
   return result;
 }
 
-export function normalizeSettings(stored?: Partial<WallpaperSettings>): WallpaperSettings {
+export function normalizeSettings(stored?: Partial<WallpaperSettings> | Record<string, unknown>): WallpaperSettings {
   const merged: WallpaperSettings = {
     ...DEFAULT_SETTINGS,
     ...stored,
     version: CURRENT_SETTINGS_VERSION
   };
   if (typeof merged.enabled !== 'boolean') merged.enabled = true;
+  if (typeof merged.showChatControls !== 'boolean') merged.showChatControls = true;
+  // Existing records keep the previous appearance; only an absent record opts in.
+  merged.readingComfort = comfortMode(stored?.readingComfort) ?? (stored === undefined ? 'soft' : 'off');
 
   if (typeof merged.opacity !== 'number' || !Number.isFinite(merged.opacity)) {
     merged.opacity = DEFAULT_SETTINGS.opacity;
@@ -125,7 +142,7 @@ export async function saveSettings(settings: Partial<WallpaperSettings>, signal?
 
 export async function saveProviderSettings(providerId: ProviderId, patch: ProviderOverrides | null): Promise<void> {
   if (!PROVIDER_IDS.includes(providerId)) throw new Error('Unknown provider.');
-  if (patch && Object.keys(patch).some((key) => key !== 'enabled' && !Object.hasOwn(DEFAULT_EFFECTS, key))) throw new Error('Only provider effects can be overridden.');
+  if (patch && Object.keys(patch).some((key) => key !== 'enabled' && key !== 'readingComfort' && !Object.hasOwn(DEFAULT_EFFECTS, key))) throw new Error('Only provider effects can be overridden.');
   await updateStoredSettings((current) => {
     const providerOverrides = { ...current.providerOverrides };
     if (patch === null) delete providerOverrides[providerId];

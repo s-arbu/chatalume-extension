@@ -35,6 +35,46 @@ afterAll(() => {
 
 const claudeStylesheet = readFileSync(new URL('../public/providers/claude.css', import.meta.url), 'utf8');
 
+test('comfort modes migrate Boolean choices and preserve explicit modes', () => {
+  expect(settingsStore.normalizeSettings().readingComfort).toBe('soft');
+  expect(settingsStore.normalizeSettings({ readingComfort: true } as any).readingComfort).toBe('soft');
+  expect(settingsStore.normalizeSettings({ readingComfort: false } as any).readingComfort).toBe('off');
+  expect(settingsStore.normalizeSettings({}).readingComfort).toBe('off');
+  expect(settingsStore.normalizeSettings({ readingComfort: 'solid' } as any).readingComfort).toBe('soft');
+  for (const mode of ['off', 'soft'] as const) expect(settingsStore.normalizeSettings({ readingComfort: mode } as any).readingComfort).toBe(mode);
+  const settings = settingsStore.normalizeSettings({ providerOverrides: { gemini: { readingComfort: 'solid' }, claude: { readingComfort: false } } } as any);
+  expect(settings.providerOverrides).toMatchObject({ gemini: { readingComfort: 'soft' }, claude: { readingComfort: 'off' } });
+});
+
+test('reading comfort defaults on only for absent settings and preserves legacy appearance', async () => {
+  expect(settingsStore.normalizeSettings().readingComfort).toBe('soft');
+  for (const legacy of [{}, { version: 7 }, { readingComfort: 'yes' as any }]) {
+    expect(settingsStore.normalizeSettings(legacy).readingComfort).toBe('off');
+  }
+  for (const value of [true, false]) expect(settingsStore.normalizeSettings({ readingComfort: value }).readingComfort).toBe(value ? 'soft' : 'off');
+  let record: any = { version: 7, imageDataUrl: 'data:image/png;base64,legacy', fileName: 'old.png', opacity: .6, blur: 4, showChatControls: false };
+  chrome.storage.local.get = (async () => ({ llm_wallpaper_settings: record })) as any;
+  chrome.storage.local.set = (async (value: any) => { record = value.llm_wallpaper_settings; }) as any;
+  await saveSettings({});
+  expect(record).toMatchObject({ version: 10, readingComfort: 'off', imageDataUrl: 'data:image/png;base64,legacy', fileName: 'old.png', opacity: .6, blur: 4, showChatControls: false });
+  await settingsStore.saveProviderSettings('gemini', { readingComfort: 'soft' });
+  expect(settingsStore.getEffectiveSettings(await getSettings(), 'gemini').readingComfort).toBe('soft');
+  expect(settingsStore.getEffectiveSettings(await getSettings(), 'claude').readingComfort).toBe('off');
+  await settingsStore.saveProviderSettings('gemini', settingsStore.DEFAULT_EFFECTS);
+  expect(settingsStore.getEffectiveSettings(await getSettings(), 'gemini').readingComfort).toBe('soft');
+  await settingsStore.saveProviderSettings('gemini', null);
+  expect(settingsStore.getEffectiveSettings(await getSettings(), 'gemini').readingComfort).toBe('off');
+});
+
+test('chat control visibility defaults safely and preserves a saved opt-out', async () => {
+  expect(settingsStore.normalizeSettings().showChatControls).toBe(true);
+  expect(settingsStore.normalizeSettings({ showChatControls: false }).showChatControls).toBe(false);
+  expect(settingsStore.normalizeSettings({ showChatControls: 'false' as any }).showChatControls).toBe(true);
+  const normalized = settingsStore.normalizeSettings({ version: 6, imageDataUrl: 'data:image/png;base64,legacy', blur: 4 });
+  expect(normalized).toMatchObject({ version: 10, showChatControls: true, imageDataUrl: 'data:image/png;base64,legacy', blur: 4 });
+  await expect(settingsStore.saveProviderSettings('gemini', { showChatControls: false } as any)).rejects.toThrow('Only provider effects');
+});
+
 test('selects ChatGPT for chatgpt.com pages', () => {
   const provider = getProvider(new URL('https://chatgpt.com/'));
 
@@ -107,11 +147,11 @@ test('normalizes a legacy settings version without losing the wallpaper', async 
   expect(settings.fileName).toBe('legacy.png');
   expect(settings.opacity).toBe(0.4);
   expect(settings.blur).toBe(6);
-  expect(settings.version).toBe(6);
+  expect(settings.version).toBe(10);
 
   await saveSettings({ opacity: 0.9 });
 
-  expect(stored.llm_wallpaper_settings.version).toBe(6);
+  expect(stored.llm_wallpaper_settings.version).toBe(10);
   expect(stored.llm_wallpaper_settings.opacity).toBe(0.9);
 });
 
@@ -129,7 +169,7 @@ test('legacy settings remain enabled without losing the image', async () => {
   globalThis.chrome.storage.local.get = (async () => ({ llm_wallpaper_settings: {
     imageDataUrl: 'data:image/png;base64,legacy', fileName: 'legacy.png', opacity: 0.4, blur: 6, version: 1
   } })) as any;
-  expect(await getSettings()).toMatchObject({ enabled: true, imageDataUrl: 'data:image/png;base64,legacy', fileName: 'legacy.png', opacity: 0.4, blur: 6, version: 6 });
+  expect(await getSettings()).toMatchObject({ enabled: true, imageDataUrl: 'data:image/png;base64,legacy', fileName: 'legacy.png', opacity: 0.4, blur: 6, version: 10 });
 });
 
 test('normalizes settings before saving', async () => {
@@ -170,7 +210,7 @@ test('provider overrides inherit invalid values and cannot replace the source', 
 });
 
 test('future settings versions are never silently overwritten', async () => {
-  globalThis.chrome.storage.local.get = (async () => ({ llm_wallpaper_settings: { version: 99, imageDataUrl: 'data:image/png;base64,legacy' } })) as any;
+  globalThis.chrome.storage.local.get = (async () => ({ llm_wallpaper_settings: { version: 109, imageDataUrl: 'data:image/png;base64,legacy' } })) as any;
   let wrote = false;
   globalThis.chrome.storage.local.set = (async () => { wrote = true; }) as any;
   await expect(saveSettings({ opacity: 0.5 })).rejects.toThrow('newer');

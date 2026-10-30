@@ -31,6 +31,12 @@ Use it to put your own image behind [ChatGPT](https://chatgpt.com/), [Claude](ht
 
 ## Customize your wallpaper
 
+Supported chat pages show a quick control centered on the right edge. Click the wallpaper switch to pause or resume only that provider; the adjacent **Wallpaper quick controls** button opens reset and settings actions. The control stays available while paused. **Reset this site’s effects** keeps your wallpaper and paused state. If wallpaper is paused everywhere, resume it in settings first. With no wallpaper selected, open settings to choose an upload or preset. The switch and three-dot button stay in a compact horizontal row; Escape closes its panel and returns keyboard focus.
+
+The compact vertical switch has no visible text: its sliding wallpaper icon shows the state, with accessible labels and a tooltip. It follows the chat's light/dark theme, with instant updates for keyboard use and reduced motion. In the full settings tab, **General settings → Show controls in chats** hides both the switch and its three-dot button on all supported providers without changing the wallpaper. Restore them from the browser toolbar's **Manage wallpaper** action.
+
+**Reading comfort** is an Off / Enabled choice in additional quick settings, the toolbar popup, and full provider settings. It places feathered blur and a translucent theme tint behind rendered conversation text, keeping surrounding wallpaper clear. It starts only when message text appears: the welcome screen and empty composer receive no treatment. Full-width wrappers are not used as reading surfaces; regions follow text, sidebar changes, streaming, and conversation scrolling. The wallpaper button separately pauses the entire wallpaper. New installations default to Enabled; existing on/Soft/Solid choices migrate to the local blur, and Off stays Off. Provider overrides and reset-preserved preferences remain supported. Blur does not guarantee contrast over every wallpaper.
+
 Open the toolbar popup to pause the wallpaper, adjust opacity and blur, blend it towards a dark or light tone, or change image fit and position. Changes apply to open supported tabs and are saved locally. **Manage wallpaper** opens the full settings tab for uploads and the bundled Mist, Dusk, and Paper presets.
 
 Choosing a preset keeps your custom upload so you can switch back with **Use my upload**. **Remove wallpaper** deletes the saved upload and preset selection. **Reset effects** restores the visual defaults while preserving the image and enabled state.
@@ -118,14 +124,16 @@ The extension stores wallpaper settings in browser local storage under one objec
 - `fileName`: selected image filename, or `null`
 - `opacity`: number between `0.05` and `1`
 - `blur`: blur amount in pixels
-- `version`: schema version, currently `6`
+- `version`: schema version, currently `10`
 - `enabled`: global pause switch; default `true`
+- `showChatControls`: global visibility of the on-page switch and quick settings; default `true`
+- `readingComfort`: `off` or `soft` (Enabled); new installs default `soft`, existing records without the field migrate to `off`
 - `dimming`, `dimTone`: blend strength 0–1 and dark/light tone
 - `fit`, `positionX`, `positionY`: cover/contain and coordinates 0–100
 - `presetId`: active bundled preset ID or `null`; the custom upload stays saved
 - `providerOverrides`: optional per-provider effects; source data remains global
 
-The current settings schema is version `6`. Older records gain defaults while retaining the upload, filename, opacity, and blur. Writes to a newer schema are refused so an older extension cannot silently overwrite newer settings. Image processing stays in the full tab; the service worker serializes accepted UI writes so closing a toolbar popup does not discard its last accepted change.
+The current settings schema is version `10`. Older records retain the upload, filename, opacity, blur, and appearance; missing reading-comfort preferences migrate to off. Writes to a newer schema are refused so an older extension cannot silently overwrite newer settings. Image processing stays in the full tab; the service worker serializes accepted UI writes so closing a toolbar popup does not discard its last accepted change.
 
 Bundled SVGs are original project artwork under the MIT license. See [preset provenance](docs/wallpaper-presets.md).
 

@@ -27,34 +27,8 @@ The local release gate uses `bun run test:browser` with the built extension and 
 
 ## Known provider-specific caveats
 
-### ChatGPT
+### Reading comfort verification, October 30
 
-- Route changes are common and auth flows may interrupt a direct page load.
-- Session-backed routes should be checked separately from public landing-page scripts.
-- Failures should include the exact URL and whether the page redirected to sign-in or a conversation shell.
+Local fixtures cover full-width ChatGPT, Claude, and Gemini message wrappers in light/dark themes, with narrower text columns. They assert no welcome/draft treatment, text-localized regions, sidebar alignment, streaming text without wrapper resizing, clipping above/below conversation scrollports, native code styles, and clearing effects after returning to a new chat. Screenshot crops verify that wallpaper in the gutter is pixel-identical with comfort enabled and disabled. Additional tests cover provider isolation, pause/removal, reset preservation, trusted-event rejection, keyboard operation, and held/rejected saves.
 
-### Claude
-
-- The provider relies on layered surface/background containers that are sensitive to upstream UI changes.
-- The extension must continue to clear page backgrounds and avoid reintroducing non-transparent surfaces.
-- Failures should be captured with a screenshot of the page and the detected shell class structure.
-
-### Gemini
-
-- Conversation pages may restructure their app shell, gradients, or container wrappers.
-- Route-based page changes can affect the active conversation surface more than the landing page.
-- Beta checks should cover the actual app route rather than only the root entry page.
-
-## Issue template guidance
-
-When a browser-channel failure is found, open or update the issue with:
-
-- Provider
-- Browser channel and version
-- Route or URL
-- Steps to reproduce
-- Screenshot or short video
-- Whether the failure is authenticated or unauthenticated
-- Whether the provider stylesheet or overlay is missing
-
-This makes the matrix actionable without overclaiming compatibility beyond the tested beta set.
+Solid mode and its former contrast matrix were removed. Local blur does not guarantee 4.5:1 contrast across arbitrary images or native text colors. Native Brave/Gemini light-mode inspection of the rebuilt extension confirms localized message-column blur, sharp surrounding mountain wallpaper, and no effect on the new-chat screen. No prompt was submitted. Signed-in ChatGPT/Claude layouts, dark-mode live acceptance, and assistive-technology acceptance remain open; fixture results do not substitute for those checks.

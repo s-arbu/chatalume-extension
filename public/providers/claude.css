@@ -23,7 +23,7 @@ main,
 }
 
 :where([data-cds-dock-masked]) .in-data-cds-dock-masked\:bg-page,
-.bg-surface-1,
+html:not([data-llm-wallpaper-comfort]) .bg-surface-1,
 .bg-page {
   background-color: transparent !important;
 }

@@ -32,7 +32,7 @@ chat-app,
   background-color: transparent !important;
 }
 
-* {
+html:not([data-llm-wallpaper-comfort]) * {
   --bard-color-surface: transparent !important;
   --gm3-sys-color-surface: transparent !important;
   --gm3-sys-color-surface-container: transparent !important;

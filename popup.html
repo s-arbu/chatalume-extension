@@ -31,11 +31,18 @@
     </div>
 
     <div class="section">
+      <h2 class="section-title">General settings</h2>
+      <div class="field"><label><input type="checkbox" id="showChatControlsInput" aria-describedby="chatControlsHelp"> Show controls in chats</label></div>
+      <p id="chatControlsHelp">Show the wallpaper switch and quick settings on all supported chat pages. Hiding them keeps your wallpaper enabled. You can always return here from the browser toolbar.</p>
+    </div>
+
+    <div class="section">
       <div class="section-title">Visual Effects</div>
       <div class="field"><label for="providerScope">Settings scope</label> <select id="providerScope"><option value="global">All providers</option><option value="chatgpt">ChatGPT</option><option value="claude">Claude</option><option value="gemini">Gemini</option></select></div>
       <p id="scopeNotice" style="margin-bottom: 12px">Wallpaper source and these defaults apply to all providers.</p>
       <button id="inheritBtn" type="button" class="btn btn-secondary" style="margin-bottom: 12px" hidden>Use global settings</button>
       <div class="field"><label><input type="checkbox" id="enabledInput"> Enable wallpaper</label></div>
+      <div class="field"><label for="readingComfortInput">Reading comfort</label> <select id="readingComfortInput" aria-describedby="readingComfortHelp"><option value="off">Off</option><option value="soft">Enabled — local text blur</option></select><p id="readingComfortHelp">Adds a feathered blur behind conversation text, keeping surrounding wallpaper clear. Starts when messages appear; new chats stay untouched.</p></div>
       <div class="field">
         <div class="label-row">
           <label for="opacityInput">Opacity</label>

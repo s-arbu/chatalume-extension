@@ -1,4 +1,4 @@
-import { DEFAULT_EFFECTS, getEffectiveSettings, getSettings, normalizeSettings, type WallpaperSettings } from '../utils/storage';
+import { DEFAULT_EFFECTS, getEffectiveSettings, getSettings, normalizeSettings, type ReadingComfortMode, type WallpaperSettings } from '../utils/storage';
 import { PROVIDER_IDS, type ProviderId } from '../providers/types';
 import { resolveWallpaper } from '../utils/wallpaperSource';
 
@@ -13,6 +13,8 @@ const enabledInput = document.getElementById('enabledInput') as HTMLInputElement
 const dimmingInput = document.getElementById('dimmingInput') as HTMLInputElement;
 const dimToneInput = document.getElementById('dimToneInput') as HTMLSelectElement;
 const fitInput = document.getElementById('fitInput') as HTMLSelectElement;
+const showChatControlsInput = document.getElementById('showChatControlsInput') as HTMLInputElement | null;
+const readingComfortInput = document.getElementById('readingComfortInput') as HTMLSelectElement | null;
 let savedSettings = normalizeSettings();
 const pending = new Map<string, number>();
 
@@ -34,8 +36,10 @@ function updateLiveValues() {
 
 export function renderSettings(settings: WallpaperSettings) {
   savedSettings = settings;
+  if (showChatControlsInput && !pending.has('global:showChatControls')) showChatControlsInput.checked = settings.showChatControls;
   const provider = selectedProvider();
   const effects = provider ? getEffectiveSettings(settings, provider) : settings;
+  if (readingComfortInput && !fieldPending('readingComfort')) readingComfortInput.value = effects.readingComfort;
   if (!fieldPending('opacity')) opacityInput.value = String(effects.opacity);
   if (!fieldPending('blur')) blurInput.value = String(effects.blur);
   if (!fieldPending('enabled')) enabledInput.checked = provider ? settings.providerOverrides[provider]?.enabled ?? true : settings.enabled;
@@ -107,6 +111,8 @@ export async function persistSettings(patch: Partial<WallpaperSettings> | null, 
 function persistEffects(patch: Partial<WallpaperSettings>) { return persistSettings(patch, undefined, selectedProvider()); }
 
 export async function bindWallpaperControls(): Promise<void> {
+  showChatControlsInput?.addEventListener('change', () => { void persistSettings({ showChatControls: showChatControlsInput.checked }); });
+  readingComfortInput?.addEventListener('change', () => { void persistEffects({ readingComfort: readingComfortInput.value as ReadingComfortMode }); });
   scopeInput?.addEventListener('change', () => renderSettings(savedSettings));
   document.getElementById('inheritBtn')?.addEventListener('click', () => { const provider = selectedProvider(); if (provider) void persistSettings(null, undefined, provider); });
   opacityInput.addEventListener('input', () => { updateLiveValues(); void persistEffects({ opacity: Number(opacityInput.value) }); });

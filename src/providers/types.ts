@@ -5,4 +5,5 @@ export interface WallpaperProviderAdapter {
   id: ProviderId;
   matches(url: URL): boolean;
   stylesheetPath: string;
+  readingSelectors: string;
 }

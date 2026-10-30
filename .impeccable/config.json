@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "popup.html"
+        ],
+        "createdAt": "2026-10-30T14:45:50.593Z",
+        "reason": "Codex verified the wallpaperPreview image is intentionally hidden until a validated source is assigned by renderSettings; brand image has a real source."
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "toolbar.html"
+        ],
+        "createdAt": "2026-10-30T15:21:31.338Z",
+        "reason": "Codex verified the toolbar wallpaperPreview is intentionally hidden until renderSettings assigns a valid stored image or preset source; this is not a shipped broken-image box."
+      }
+    ]
+  }
+}
