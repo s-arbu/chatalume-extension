@@ -46,10 +46,12 @@ export function createQuickControls(provider: WallpaperProviderAdapter, onThemeC
   toggle.setAttribute('aria-label', `Wallpaper on ${name}`);
   let saved: WallpaperSettings;
   let busy = false;
+  let motionError = false;
   let pendingComfort: ReadingComfortMode | undefined;
 
   function render(settings: WallpaperSettings) {
     saved = settings;
+    if (motionError) { status.textContent = ''; motionError = false; }
     host.hidden = !settings.showChatControls;
     if (host.hidden) setOpen(false);
     const source = resolveWallpaper(settings);
@@ -116,5 +118,10 @@ export function createQuickControls(provider: WallpaperProviderAdapter, onThemeC
     if (event.composedPath().includes(host)) host.dataset.input = 'pointer';
     if (!event.composedPath().includes(host)) setOpen(false);
   }, true);
-  return { host, render };
+  function reportMotionError() {
+    motionError = true;
+    const message = 'Could not make a still frame. Choose another image or allow animation in settings.';
+    status.textContent = message; notice.textContent = message; toggle.title = message;
+  }
+  return { host, render, reportMotionError };
 }

@@ -43,3 +43,6 @@ main,
   box-shadow: none !important;
   opacity: 0 !important;
 }
+@media (prefers-reduced-motion: reduce) {
+  #llm-wallpaper-overlay { transition: none !important; }
+}

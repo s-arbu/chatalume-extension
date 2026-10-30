@@ -47,12 +47,13 @@ This does not bypass authentication. It tests with an account the project mainta
 - On-page right-center control for current-provider pause/resume, reset, and settings; keyboard dismissal and compact narrow-window layout.
 - Theme-aware rectangular switch and a global General setting to hide the whole on-page control without changing wallpaper state.
 - Localized reading comfort (Off / Enabled): text-based bounds, feathered blur, streaming/scroll clipping, theme changes, and provider preferences. No welcome/composer treatment or opaque Solid mode. Gemini light-mode conversation and new-chat behavior checked live; other provider acceptance remains open.
+- Optional first-use preset/upload/skip setup with synthetic preview; system reduced-motion GIF still frames with an explicit playback override. Keyboard, 320px reflow, 200% browser zoom, forced colors and representative axe states have automated coverage. VoiceOver/NVDA and human first-use discovery acceptance remain open.
 - Contextual toolbar with provider state, site/global pause, site reset, collapsed provider adjustments, unsupported/empty guidance, and persistent full settings for source/global edits. Actual-popup regressions and live Brave/Gemini inspection cover this hierarchy; the five-tester discovery gate remains open.
 - Global pause, separate remove/reset actions, thumbnail and save/error feedback.
 - Explicit readability blending, cover/contain, and image position.
 - Offline Mist, Dusk, and Paper presets alongside the retained custom upload.
 - Optional per-provider visual effects with global pause taking precedence.
-- Schema-6 migrations preserve existing uploads; future-version writes are refused.
+- Schema-11 migrations preserve existing uploads/effects and skip setup for existing installations; future-version writes are refused.
 
 ## Release Recovery
 

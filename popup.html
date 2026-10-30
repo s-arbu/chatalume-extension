@@ -7,15 +7,26 @@
 </head>
 <body>
 
-  <div class="dashboard">
+  <main class="dashboard">
     <header>
       <img class="brand-mark" src="logo.svg" alt="">
       <h1>LLM Wallpapers</h1>
       <p>Configure your workspace background</p>
     </header>
 
+    <section id="setupIntro" class="section" aria-labelledby="setupTitle" hidden>
+      <h2 id="setupTitle">Make your AI workspace yours</h2>
+      <p>Choose a look for ChatGPT, Claude, and Gemini. Your wallpaper and settings stay in this browser.</p>
+      <div class="setup-actions"><button type="button" class="btn btn-primary" id="setupPresetBtn">Choose a preset</button><button type="button" class="btn btn-secondary" id="setupUploadBtn">Use an image</button><button type="button" class="btn btn-secondary" id="setupSkipBtn">Skip for now</button></div>
+    </section>
+    <section class="section" role="region" aria-label="Wallpaper preview">
+      <h2 class="section-title">Example conversation</h2>
+      <div class="workspace-preview"><div id="previewWallpaper" aria-hidden="true"></div><div class="preview-chat"><p class="preview-query">Help me plan a focused afternoon.</p><p class="preview-response">Start with one priority, take a short break, then review what you finished.</p></div></div>
+      <p id="previewCaption">Preview only. Choose a wallpaper to apply it.</p>
+      <p class="provider-links">Try it on <a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">ChatGPT</a>, <a href="https://claude.ai/" target="_blank" rel="noopener noreferrer">Claude</a>, or <a href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer">Gemini</a>.</p>
+    </section>
     <div class="section">
-      <div class="section-title">Background Source</div>
+      <h2 class="section-title">Wallpaper source</h2>
       <fieldset id="presetGallery"><legend>Wallpaper presets</legend><label><input type="radio" name="wallpaperSource" value="upload"> Use my upload</label></fieldset>
       <img id="wallpaperPreview" style="width: 96px; height: 60px; object-fit: cover; margin-bottom: 12px; border-radius: 4px" hidden alt="Selected wallpaper">
       <div class="file-row">
@@ -33,11 +44,14 @@
     <div class="section">
       <h2 class="section-title">General settings</h2>
       <div class="field"><label><input type="checkbox" id="showChatControlsInput" aria-describedby="chatControlsHelp"> Show controls in chats</label></div>
+      <div class="field"><label><input type="checkbox" id="allowAnimationsInput" aria-describedby="motionHelp"> Allow animated wallpapers with reduced motion</label></div>
+      <p id="motionHelp">When your system requests reduced motion, animated GIFs use a still frame. Enable this only if you want them to play anyway.</p>
+      <p id="motionNotice" role="status" hidden></p>
       <p id="chatControlsHelp">Show the wallpaper switch and quick settings on all supported chat pages. Hiding them keeps your wallpaper enabled. You can always return here from the browser toolbar.</p>
     </div>
 
     <div class="section">
-      <div class="section-title">Visual Effects</div>
+      <h2 class="section-title">Visual effects</h2>
       <div class="field"><label for="providerScope">Settings scope</label> <select id="providerScope"><option value="global">All providers</option><option value="chatgpt">ChatGPT</option><option value="claude">Claude</option><option value="gemini">Gemini</option></select></div>
       <p id="scopeNotice" style="margin-bottom: 12px">Wallpaper source and these defaults apply to all providers.</p>
       <button id="inheritBtn" type="button" class="btn btn-secondary" style="margin-bottom: 12px" hidden>Use global settings</button>
@@ -70,10 +84,11 @@
     </div>
 
     <div class="section">
-      <div class="section-title">Support</div>
+      <h2 class="section-title">Support</h2>
+      <details><summary>Find your controls later</summary><p>Open LLM Wallpapers from your browser’s Extensions menu. You can pin it to the toolbar for quicker access. The switch in a supported chat pauses only that site; Manage wallpaper returns here.</p></details>
       <a class="btn btn-secondary" href="https://github.com/s-arbu/llm-wallpapers-extension/issues/new" target="_blank" rel="noopener noreferrer">Report an issue</a>
     </div>
-  </div>
+  </main>
 
   <script type="module" src="src/popup/popup.ts"></script>
 </body>

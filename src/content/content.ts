@@ -4,6 +4,8 @@ import { resolveWallpaper } from '../utils/wallpaperSource';
 import { createQuickControls } from './quickControls';
 import { createReadingComfort } from './readingComfort';
 import { createWallpaperViewport } from './wallpaperViewport';
+import { clearWallpaperPresentation, motionPreference, needsStillFrame, presentWallpaper } from '../utils/wallpaperPresentation';
+let presentationVersion = 0;
 
 const provider = getProvider(new URL(window.location.href));
 let currentSettings: WallpaperSettings | undefined;
@@ -64,6 +66,7 @@ function restoreProviderUi() {
   if (currentSettings) quickControls?.render(currentSettings);
   updateReadingComfort();
   const settings = currentSettings && provider ? getEffectiveSettings(currentSettings, provider.id) : undefined;
+  if (!settings || !resolveWallpaper(settings)) clearWallpaperPresentation();
   if (!settings?.enabled || !resolveWallpaper(settings)) {
     wallpaperViewport?.update(null);
     document.getElementById('llm-wallpaper-overlay')?.remove();
@@ -73,19 +76,31 @@ function restoreProviderUi() {
   loadProviderStylesheet();
   injectOverlay();
   wallpaperViewport?.update(document.getElementById('llm-wallpaper-overlay'));
-  applySettings(settings);
+  void applySettings(settings);
 }
 
-function applySettings(settings: WallpaperSettings) {
+async function applySettings(settings: WallpaperSettings) {
+  const version = ++presentationVersion;
   const overlay = document.getElementById('llm-wallpaper-overlay');
   if (!overlay) return;
 
   // Apply directly to the element, avoiding :root CSS variables entirely
   const source = resolveWallpaper(settings);
   if (source) {
+    if (needsStillFrame(source.url, settings.allowAnimations)) overlay.style.backgroundImage = 'none';
+    let url: string;
+    try { url = await presentWallpaper(source.url, settings.allowAnimations); }
+    catch {
+      if (version === presentationVersion && overlay.isConnected) {
+        overlay.style.backgroundImage = 'none';
+        quickControls?.reportMotionError();
+      }
+      return;
+    }
+    if (version !== presentationVersion || !overlay.isConnected) return;
     const tone = settings.dimTone === 'light' ? '255,255,255' : '0,0,0';
     const color = `rgba(${tone},${settings.dimming})`;
-    overlay.style.backgroundImage = `linear-gradient(${color},${color}), url("${source.url}")`;
+    overlay.style.backgroundImage = `linear-gradient(${color},${color}), url("${url}")`;
     overlay.style.backgroundSize = `100% 100%, ${settings.fit}`;
     overlay.style.backgroundPosition = `center, ${settings.positionX}% ${settings.positionY}%`;
   } else {
@@ -106,6 +121,7 @@ async function init() {
   quickControls = createQuickControls(provider, (theme) => { currentTheme = theme; updateReadingComfort(); });
   document.documentElement.appendChild(quickControls.host);
   restoreProviderUi();
+  motionPreference.addEventListener('change', restoreProviderUi);
 
   const observer = new MutationObserver((records) => {
     const own = '#llm-reading-comfort, #llm-wallpaper-controls, #llm-wallpaper-overlay';

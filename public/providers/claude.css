@@ -31,3 +31,7 @@ html:not([data-llm-wallpaper-comfort]) .bg-surface-1,
 .page-fade-b {
   background-image: none !important;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  #llm-wallpaper-overlay { transition: none !important; }
+}

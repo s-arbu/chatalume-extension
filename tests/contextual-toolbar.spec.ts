@@ -11,7 +11,7 @@ for (const site of TARGET_SITES) test(`${site.name}: actual toolbar scopes every
   const popup = await openToolbar(extensionContext);
   await expect.poll(() => popup.evaluate("document.querySelector('#providerName')?.textContent")).toBe(site.name);
   expect(await popup.evaluate("document.querySelector('#advancedControls').open")).toBe(false);
-  expect(await popup.evaluate("['sitePauseBtn','resetEffectsBtn','globalPauseBtn','manageWallpaperBtn'].every(id => { const b = document.getElementById(id).getBoundingClientRect(); return b.bottom <= innerHeight && b.right <= innerWidth; })")).toBe(true);
+  await expect.poll(() => popup.evaluate("['sitePauseBtn','resetEffectsBtn','globalPauseBtn','manageWallpaperBtn'].every(id => { const b = document.getElementById(id).getBoundingClientRect(); return b.bottom <= innerHeight && b.right <= innerWidth; })")).toBe(true);
   await popup.evaluate("document.querySelector('#sitePauseBtn').click()");
   await expect(page.locator('#llm-wallpaper-overlay')).toHaveCount(0);
   await expect(other.locator('#llm-wallpaper-overlay')).toBeAttached();

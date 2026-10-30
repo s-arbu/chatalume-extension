@@ -40,3 +40,11 @@ Provider-shaped fixtures verify expanded, compact and hidden navigation, respons
 ### Contextual browser toolbar
 
 Actual action-popup tests cover active-provider detection for all three providers, site-only vs global pause, global precedence, provider-scoped adjustments, reset preserving source/comfort/enabled choices, inheritance, reopening, rejected writes, duplicate clicks while a write is held, popup close durability, and unsupported/empty setup. Essential actions are checked against popup bounds. Existing full-settings regressions remain in the suite. Live Brave/Gemini inspection showed the new hierarchy fitting without advanced controls; Tab focused the site pause button and Escape dismissed the popup. No live wallpaper preference was changed. Five-user discovery testing, screen-reader acceptance and full zoom/forced-colors checks remain separate roadmap gates.
+
+### First-use setup and accessibility
+
+Isolated Chromium tests cover first-use keyboard selection, upload/file chooser, skip, reopening, legacy upgrades, and synthetic preview. GIF tests verify first-frame pixels, retained original bytes, normal/reduced OS preference changes, explicit animation, paused thumbnails, mislabelled GIF input, deferred stale-frame rejection and decode-error recovery. Static decoding follows the HTML Standard default/first-frame behavior: https://html.spec.whatwg.org/multipage/imagebitmap-and-animations.html.
+
+Settings and toolbar reflow are checked at 320 CSS px and real Chrome 200% zoom via the Tabs API. Automated axe checks use WCAG 2 A/AA, 2.1 AA and 2.2 AA tags across first-use, configured, forced-color, decode-error and actual-toolbar active/global-pause states. No serious/critical findings remained in focused checks. These are sampled extension-owned screens, not blanket conformance or provider contrast guarantees. Reference reflow guidance: https://www.w3.org/WAI/WCAG21/Understanding/reflow.
+
+Live Brave upgrade inspection preserved the selected upload, showed the synthetic preview and General motion option, and omitted the first-use intro. The temporary settings tab was closed and the existing Gemini tab restored. No wallpaper preference or system accessibility setting was changed. VoiceOver/NVDA, stable Chrome manual acceptance, and observed human setup/discovery metrics remain open.

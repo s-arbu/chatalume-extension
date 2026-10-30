@@ -33,6 +33,10 @@ Use it to put your own image behind [ChatGPT](https://chatgpt.com/), [Claude](ht
 
 Supported chat pages show a quick control centered on the right edge. Click the wallpaper switch to pause or resume only that provider; the adjacent **Wallpaper quick controls** button opens reset and settings actions. The control stays available while paused. **Reset this site’s effects** keeps your wallpaper and paused state. If wallpaper is paused everywhere, resume it in settings first. With no wallpaper selected, open settings to choose an upload or preset. The switch and three-dot button stay in a compact horizontal row; Escape closes its panel and returns keyboard focus.
 
+On first use, full settings offers **Choose a preset**, **Use an image**, or **Skip for now**, with a labelled example-conversation preview and links to the supported providers. Choosing a source or skipping completes setup. Updates preserve existing uploads and effects and do not reopen setup. Support includes a short reminder of how to find or pin the toolbar controls.
+
+**Motion and access:** GIF wallpapers and previews use a locally decoded still frame when your system requests reduced motion. In General settings, **Allow animated wallpapers with reduced motion** explicitly permits playback; the original GIF stays saved unchanged. Pausing also freezes animated previews. Settings and toolbar controls support keyboard focus, unit-bearing slider announcements, 320 CSS px layouts, 200% browser zoom, and system colors in forced-color mode. Automated checks cover representative states; VoiceOver/NVDA acceptance remains outstanding.
+
 The compact vertical switch has no visible text: its sliding wallpaper icon shows the state, with accessible labels and a tooltip. It follows the chat's light/dark theme, with instant updates for keyboard use and reduced motion. In the full settings tab, **General settings → Show controls in chats** hides both the switch and its three-dot button on all supported providers without changing the wallpaper. Restore them from the browser toolbar's **Manage wallpaper** action.
 
 The fixed wallpaper fits the visible chat pane beside the sidebar and resizes when navigation expands, collapses, or disappears. Mobile drawers that overlay a full-width chat pane keep that pane's crop. If the provider layout cannot be identified, the wallpaper uses the full window. Cover fills the available area and may crop for aspect ratio; Contain shows the whole image. Image position remains relative to that visible area.
@@ -126,8 +130,10 @@ The extension stores wallpaper settings in browser local storage under one objec
 - `fileName`: selected image filename, or `null`
 - `opacity`: number between `0.05` and `1`
 - `blur`: blur amount in pixels
-- `version`: schema version, currently `10`
+- `version`: schema version, currently `11`
 - `enabled`: global pause switch; default `true`
+- `setupComplete`: first-use completion; fresh installs start `false`, legacy records migrate to `true`
+- `allowAnimations`: global override of system reduced motion; default `false`
 - `showChatControls`: global visibility of the on-page switch and quick settings; default `true`
 - `readingComfort`: `off` or `soft` (Enabled); new installs default `soft`, existing records without the field migrate to `off`
 - `dimming`, `dimTone`: blend strength 0–1 and dark/light tone
@@ -135,7 +141,7 @@ The extension stores wallpaper settings in browser local storage under one objec
 - `presetId`: active bundled preset ID or `null`; the custom upload stays saved
 - `providerOverrides`: optional per-provider effects; source data remains global
 
-The current settings schema is version `10`. Older records retain the upload, filename, opacity, blur, and appearance; missing reading-comfort preferences migrate to off. Writes to a newer schema are refused so an older extension cannot silently overwrite newer settings. Image processing stays in the full tab; the service worker serializes accepted UI writes so closing a toolbar popup does not discard its last accepted change.
+The current settings schema is version `11`. Older records retain the upload, filename, opacity, blur, and effects; GIF playback now follows system reduced motion unless explicitly allowed; missing reading-comfort preferences migrate to off. Writes to a newer schema are refused so an older extension cannot silently overwrite newer settings. Image processing stays in the full tab; the service worker serializes accepted UI writes so closing a toolbar popup does not discard its last accepted change.
 
 Bundled SVGs are original project artwork under the MIT license. See [preset provenance](docs/wallpaper-presets.md).
 

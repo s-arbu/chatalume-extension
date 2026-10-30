@@ -1,6 +1,7 @@
 import { DEFAULT_EFFECTS, getEffectiveSettings, getSettings, normalizeSettings, type ReadingComfortMode, type WallpaperSettings } from '../utils/storage';
 import { PROVIDER_IDS, type ProviderId } from '../providers/types';
 import { resolveWallpaper } from '../utils/wallpaperSource';
+import { clearWallpaperPresentation, motionPreference, presentWallpaper } from '../utils/wallpaperPresentation';
 
 const fileNameDisplay = document.getElementById('fileNameDisplay') as HTMLDivElement;
 const resetBtn = document.getElementById('resetBtn') as HTMLButtonElement | null;
@@ -15,6 +16,9 @@ const dimToneInput = document.getElementById('dimToneInput') as HTMLSelectElemen
 const fitInput = document.getElementById('fitInput') as HTMLSelectElement;
 const showChatControlsInput = document.getElementById('showChatControlsInput') as HTMLInputElement | null;
 const readingComfortInput = document.getElementById('readingComfortInput') as HTMLSelectElement | null;
+const allowAnimationsInput = document.getElementById('allowAnimationsInput') as HTMLInputElement | null;
+let previewVersion = 0;
+let announcement: ReturnType<typeof setTimeout> | undefined;
 let savedSettings = normalizeSettings();
 let onRender: ((settings: WallpaperSettings) => void) | undefined;
 const pending = new Map<string, number>();
@@ -28,15 +32,21 @@ function fieldPending(field: string) { return pending.has(`${selectedProvider() 
 
 function updateLiveValues() {
   document.getElementById('opacityVal')!.textContent = `${Math.round(Number(opacityInput.value) * 100)}%`;
+  opacityInput.setAttribute('aria-valuetext', `${Math.round(Number(opacityInput.value) * 100)} percent`);
+  blurInput.setAttribute('aria-valuetext', `${blurInput.value} pixels`);
+  dimmingInput.setAttribute('aria-valuetext', `${Math.round(Number(dimmingInput.value) * 100)} percent`);
   document.getElementById('blurVal')!.textContent = `${blurInput.value}px`;
   document.getElementById('dimmingVal')!.textContent = `${Math.round(Number(dimmingInput.value) * 100)}%`;
   for (const field of ['positionX', 'positionY'] as const) {
-    document.getElementById(`${field}Val`)!.textContent = `${(document.getElementById(`${field}Input`) as HTMLInputElement).value}%`;
+    const input = document.getElementById(`${field}Input`) as HTMLInputElement;
+    document.getElementById(`${field}Val`)!.textContent = `${input.value}%`;
+    input.setAttribute('aria-valuetext', `${input.value} percent`);
   }
 }
 
 export function renderSettings(settings: WallpaperSettings) {
   savedSettings = settings;
+  if (allowAnimationsInput && !pending.has('global:allowAnimations')) allowAnimationsInput.checked = settings.allowAnimations;
   if (showChatControlsInput && !pending.has('global:showChatControls')) showChatControlsInput.checked = settings.showChatControls;
   const provider = selectedProvider();
   const effects = provider ? getEffectiveSettings(settings, provider) : settings;
@@ -57,11 +67,21 @@ export function renderSettings(settings: WallpaperSettings) {
   const notice = document.getElementById('scopeNotice');
   if (notice) notice.textContent = provider ? (!settings.enabled ? 'All providers are paused. Enable wallpaper under All providers to resume.' : 'Wallpaper source is shared. These effects apply only to the selected provider.') : 'Wallpaper source and these defaults apply to all providers.';
   const source = resolveWallpaper(settings);
-  preview.hidden = !source;
+  if (!source) clearWallpaperPresentation();
+  const version = ++previewVersion;
+  preview.hidden = true;
+  preview.removeAttribute('src');
   if (source) {
-    preview.src = source.url;
     preview.alt = source.label;
-  } else preview.removeAttribute('src');
+    void presentWallpaper(source.url, settings.allowAnimations, !effects.enabled).then(url => {
+      if (version !== previewVersion) return;
+      preview.src = url; preview.hidden = false;
+    }).catch(() => {
+      if (version !== previewVersion) return;
+      const notice = document.getElementById('motionNotice') || uploadError;
+      if (notice) { notice.hidden = false; notice.textContent = 'Could not make a still frame. Choose another image or allow animation.'; }
+    });
+  }
   fileNameDisplay.textContent = source?.label || 'No file chosen';
   if (resetBtn) resetBtn.style.display = source || settings.imageDataUrl ? 'block' : 'none';
   for (const radio of document.querySelectorAll<HTMLInputElement>('input[name="wallpaperSource"]')) {
@@ -83,7 +103,8 @@ function renderStoredSettings(stored?: Partial<WallpaperSettings>) {
 export async function persistSettings(patch: Partial<WallpaperSettings> | null, signal?: AbortSignal, providerId?: ProviderId): Promise<boolean> {
   const keys = Object.keys(patch || { inherit: true }).map((key) => `${providerId || 'global'}:${key}`);
   for (const key of keys) pending.set(key, (pending.get(key) || 0) + 1);
-  saveStatus.textContent = 'Saving...';
+  clearTimeout(announcement);
+  if (saveStatus.textContent !== 'Saving...') saveStatus.textContent = 'Saving...';
   uploadError.hidden = true;
   let success = false;
   try {
@@ -106,7 +127,11 @@ export async function persistSettings(patch: Partial<WallpaperSettings> | null, 
       else pending.delete(key);
     }
     renderSettings(savedSettings);
-    if (!pending.size) saveStatus.textContent = success ? 'Saved' : 'Not saved';
+    if (!pending.size) {
+      clearTimeout(announcement);
+      if (success) announcement = setTimeout(() => { saveStatus.textContent = 'Saved'; }, 250);
+      else saveStatus.textContent = 'Not saved';
+    }
   }
 }
 
@@ -114,6 +139,8 @@ function persistEffects(patch: Partial<WallpaperSettings>) { return persistSetti
 
 export async function bindWallpaperControls(render?: (settings: WallpaperSettings) => void): Promise<void> {
   onRender = render;
+  allowAnimationsInput?.addEventListener('change', () => { void persistSettings({ allowAnimations: allowAnimationsInput.checked }); });
+  motionPreference.addEventListener('change', () => renderSettings(savedSettings));
   showChatControlsInput?.addEventListener('change', () => { void persistSettings({ showChatControls: showChatControlsInput.checked }); });
   readingComfortInput?.addEventListener('change', () => { void persistEffects({ readingComfort: readingComfortInput.value as ReadingComfortMode }); });
   scopeInput?.addEventListener('change', () => renderSettings(savedSettings));

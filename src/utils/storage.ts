@@ -19,6 +19,8 @@ export interface WallpaperSettings {
   version: number;
   enabled: boolean;
   showChatControls: boolean;
+  setupComplete: boolean;
+  allowAnimations: boolean;
   readingComfort: ReadingComfortMode;
   dimming: number;
   dimTone: 'dark' | 'light';
@@ -29,7 +31,7 @@ export interface WallpaperSettings {
   providerOverrides: Partial<Record<ProviderId, ProviderOverrides>>;
 }
 
-const CURRENT_SETTINGS_VERSION = 10;
+const CURRENT_SETTINGS_VERSION = 11;
 
 export const DEFAULT_EFFECTS = { opacity: 0.15, blur: 0, dimming: 0, dimTone: 'dark' as const, fit: 'cover' as const, positionX: 50, positionY: 50 };
 
@@ -39,6 +41,8 @@ const DEFAULT_SETTINGS: WallpaperSettings = {
   ...DEFAULT_EFFECTS,
   enabled: true,
   showChatControls: true,
+  setupComplete: false,
+  allowAnimations: false,
   readingComfort: 'soft',
   presetId: null,
   providerOverrides: {},
@@ -71,6 +75,8 @@ export function normalizeSettings(stored?: Partial<WallpaperSettings> | Record<s
     ...stored,
     version: CURRENT_SETTINGS_VERSION
   };
+  if (typeof merged.setupComplete !== 'boolean' || stored?.setupComplete === undefined) merged.setupComplete = stored !== undefined;
+  if (typeof merged.allowAnimations !== 'boolean') merged.allowAnimations = false;
   if (typeof merged.enabled !== 'boolean') merged.enabled = true;
   if (typeof merged.showChatControls !== 'boolean') merged.showChatControls = true;
   // Existing records keep the previous appearance; only an absent record opts in.

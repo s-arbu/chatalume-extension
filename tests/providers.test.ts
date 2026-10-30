@@ -56,7 +56,7 @@ test('reading comfort defaults on only for absent settings and preserves legacy 
   chrome.storage.local.get = (async () => ({ llm_wallpaper_settings: record })) as any;
   chrome.storage.local.set = (async (value: any) => { record = value.llm_wallpaper_settings; }) as any;
   await saveSettings({});
-  expect(record).toMatchObject({ version: 10, readingComfort: 'off', imageDataUrl: 'data:image/png;base64,legacy', fileName: 'old.png', opacity: .6, blur: 4, showChatControls: false });
+  expect(record).toMatchObject({ version: 11, readingComfort: 'off', imageDataUrl: 'data:image/png;base64,legacy', fileName: 'old.png', opacity: .6, blur: 4, showChatControls: false });
   await settingsStore.saveProviderSettings('gemini', { readingComfort: 'soft' });
   expect(settingsStore.getEffectiveSettings(await getSettings(), 'gemini').readingComfort).toBe('soft');
   expect(settingsStore.getEffectiveSettings(await getSettings(), 'claude').readingComfort).toBe('off');
@@ -71,7 +71,7 @@ test('chat control visibility defaults safely and preserves a saved opt-out', as
   expect(settingsStore.normalizeSettings({ showChatControls: false }).showChatControls).toBe(false);
   expect(settingsStore.normalizeSettings({ showChatControls: 'false' as any }).showChatControls).toBe(true);
   const normalized = settingsStore.normalizeSettings({ version: 6, imageDataUrl: 'data:image/png;base64,legacy', blur: 4 });
-  expect(normalized).toMatchObject({ version: 10, showChatControls: true, imageDataUrl: 'data:image/png;base64,legacy', blur: 4 });
+  expect(normalized).toMatchObject({ version: 11, showChatControls: true, imageDataUrl: 'data:image/png;base64,legacy', blur: 4 });
   await expect(settingsStore.saveProviderSettings('gemini', { showChatControls: false } as any)).rejects.toThrow('Only provider effects');
 });
 
@@ -147,11 +147,11 @@ test('normalizes a legacy settings version without losing the wallpaper', async 
   expect(settings.fileName).toBe('legacy.png');
   expect(settings.opacity).toBe(0.4);
   expect(settings.blur).toBe(6);
-  expect(settings.version).toBe(10);
+  expect(settings.version).toBe(11);
 
   await saveSettings({ opacity: 0.9 });
 
-  expect(stored.llm_wallpaper_settings.version).toBe(10);
+  expect(stored.llm_wallpaper_settings.version).toBe(11);
   expect(stored.llm_wallpaper_settings.opacity).toBe(0.9);
 });
 
@@ -169,7 +169,7 @@ test('legacy settings remain enabled without losing the image', async () => {
   globalThis.chrome.storage.local.get = (async () => ({ llm_wallpaper_settings: {
     imageDataUrl: 'data:image/png;base64,legacy', fileName: 'legacy.png', opacity: 0.4, blur: 6, version: 1
   } })) as any;
-  expect(await getSettings()).toMatchObject({ enabled: true, imageDataUrl: 'data:image/png;base64,legacy', fileName: 'legacy.png', opacity: 0.4, blur: 6, version: 10 });
+  expect(await getSettings()).toMatchObject({ enabled: true, imageDataUrl: 'data:image/png;base64,legacy', fileName: 'legacy.png', opacity: 0.4, blur: 6, version: 11 });
 });
 
 test('normalizes settings before saving', async () => {
@@ -266,4 +266,13 @@ test('preserves animated GIFs without converting them to webp', async () => {
   } finally {
     globalThis.createImageBitmap = originalCreateImageBitmap;
   }
+});
+
+test('setup and motion preferences migrate without reopening setup or losing legacy data', async () => {
+  expect(settingsStore.normalizeSettings()).toMatchObject({ setupComplete: false, allowAnimations: false });
+  const legacy = settingsStore.normalizeSettings({ version: 10, imageDataUrl: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==', fileName: 'kept.gif', enabled: false, opacity: .7 });
+  expect(legacy).toMatchObject({ setupComplete: true, allowAnimations: false, fileName: 'kept.gif', enabled: false, opacity: .7 });
+  expect(settingsStore.normalizeSettings({ setupComplete: false, allowAnimations: true } as any)).toMatchObject({ setupComplete: false, allowAnimations: true });
+  await expect(settingsStore.saveProviderSettings('gemini', { allowAnimations: true } as any)).rejects.toThrow('Only provider effects');
+  await expect(settingsStore.saveProviderSettings('gemini', { setupComplete: true } as any)).rejects.toThrow('Only provider effects');
 });
