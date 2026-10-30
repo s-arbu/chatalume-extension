@@ -16,6 +16,7 @@ const fitInput = document.getElementById('fitInput') as HTMLSelectElement;
 const showChatControlsInput = document.getElementById('showChatControlsInput') as HTMLInputElement | null;
 const readingComfortInput = document.getElementById('readingComfortInput') as HTMLSelectElement | null;
 let savedSettings = normalizeSettings();
+let onRender: ((settings: WallpaperSettings) => void) | undefined;
 const pending = new Map<string, number>();
 
 const scopeInput = document.getElementById('providerScope') as HTMLSelectElement | null;
@@ -67,6 +68,7 @@ export function renderSettings(settings: WallpaperSettings) {
     radio.checked = radio.value === (settings.presetId || 'upload');
     if (radio.value === 'upload') radio.disabled = !settings.imageDataUrl;
   }
+  onRender?.(settings);
 }
 
 function renderStoredSettings(stored?: Partial<WallpaperSettings>) {
@@ -110,7 +112,8 @@ export async function persistSettings(patch: Partial<WallpaperSettings> | null, 
 
 function persistEffects(patch: Partial<WallpaperSettings>) { return persistSettings(patch, undefined, selectedProvider()); }
 
-export async function bindWallpaperControls(): Promise<void> {
+export async function bindWallpaperControls(render?: (settings: WallpaperSettings) => void): Promise<void> {
+  onRender = render;
   showChatControlsInput?.addEventListener('change', () => { void persistSettings({ showChatControls: showChatControlsInput.checked }); });
   readingComfortInput?.addEventListener('change', () => { void persistEffects({ readingComfort: readingComfortInput.value as ReadingComfortMode }); });
   scopeInput?.addEventListener('change', () => renderSettings(savedSettings));

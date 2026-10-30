@@ -8,14 +8,26 @@
 <body class="toolbar">
   <div class="dashboard">
     <header><h1>LLM Wallpapers</h1></header>
-    <div class="section">
-      <img id="wallpaperPreview" style="width: 96px; height: 60px; object-fit: cover; margin-bottom: 12px; border-radius: 4px" hidden alt="Selected wallpaper">
-      <div class="file-name" id="fileNameDisplay" role="status" aria-label="Wallpaper source">No file chosen</div>
-      <p id="uploadError" role="alert" style="margin-top: 12px" hidden></p>
-      <p id="saveStatus" role="status" aria-label="Save status" style="margin-top: 12px"></p>
+    <section class="section toolbar-context" aria-labelledby="providerName">
+      <h2 id="providerName">Loading chat controls…</h2>
+      <p id="contextNotice">Checking the active tab.</p>
+      <div id="siteActions" class="toolbar-actions" hidden>
+        <button type="button" id="sitePauseBtn" class="btn btn-primary" disabled>Pause on this site</button>
+        <button type="button" id="resetEffectsBtn" class="btn btn-secondary">Reset this site's effects</button>
+      </div>
+      <button type="button" id="globalPauseBtn" class="btn btn-secondary" disabled>Pause everywhere</button>
+      <p id="uploadError" role="alert" hidden></p>
+      <p id="saveStatus" role="status" aria-label="Save status"></p>
+    </section>
+    <div class="section toolbar-source">
+      <img id="wallpaperPreview" hidden alt="Selected wallpaper">
+      <div class="file-name" id="fileNameDisplay" role="status" aria-label="Wallpaper source">No wallpaper selected</div>
     </div>
-    <div class="section">
-      <div class="field"><label><input type="checkbox" id="enabledInput"> Enable wallpaper</label></div>
+    <details id="advancedControls" class="section" hidden>
+      <summary>Adjust this site's wallpaper</summary>
+      <select id="providerScope" hidden aria-label="Settings scope"><option value="global">All providers</option><option value="chatgpt">ChatGPT</option><option value="claude">Claude</option><option value="gemini">Gemini</option></select>
+      <p id="scopeNotice"></p>
+      <input type="checkbox" id="enabledInput" hidden aria-label="Enable wallpaper">
       <div class="field"><label for="readingComfortInput">Reading comfort</label> <select id="readingComfortInput"><option value="off">Off</option><option value="soft">Enabled — local text blur</option></select></div>
       <div class="field">
         <div class="label-row"><label for="opacityInput">Opacity</label><span id="opacityVal">15%</span></div>
@@ -30,12 +42,12 @@
         <input type="range" id="dimmingInput" min="0" max="1" step="0.05">
       </div>
       <div class="field"><label for="dimToneInput">Blend tone</label> <select id="dimToneInput"><option value="dark">Dark</option><option value="light">Light</option></select></div>
-      <div class="field"><label for="fitInput">Image fit</label> <select id="fitInput"><option value="cover">Cover — fill the page</option><option value="contain">Contain — show the whole image</option></select></div>
+      <div class="field"><label for="fitInput">Image fit</label> <select id="fitInput"><option value="cover">Cover — fill the chat area</option><option value="contain">Contain — show the whole image</option></select></div>
       <div class="field"><div class="label-row"><label for="positionXInput">Horizontal position</label><span id="positionXVal">50%</span></div><input type="range" id="positionXInput" min="0" max="100" step="1"></div>
       <div class="field"><div class="label-row"><label for="positionYInput">Vertical position</label><span id="positionYVal">50%</span></div><input type="range" id="positionYInput" min="0" max="100" step="1"></div>
-      <button type="button" id="resetEffectsBtn" class="btn btn-secondary">Reset effects</button>
-    </div>
-    <button type="button" id="manageWallpaperBtn" class="btn btn-primary">Manage wallpaper</button>
+      <button id="inheritBtn" type="button" class="btn btn-secondary">Use global settings</button>
+    </details>
+    <button type="button" id="manageWallpaperBtn" class="btn btn-primary">Choose wallpaper</button>
   </div>
   <script type="module" src="src/popup/toolbar.ts"></script>
 </body>

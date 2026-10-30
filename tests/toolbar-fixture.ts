@@ -4,10 +4,6 @@ import { expect } from './extension-fixture';
 // Chrome creates action popups as targets that Playwright does not auto-attach.
 export async function openToolbar(context: BrowserContext) {
   const session = await context.browser()!.newBrowserCDPSession();
-  const storedOpacity = await context.serviceWorkers()[0].evaluate(async () => {
-    const result = await chrome.storage.local.get<{ llm_wallpaper_settings?: { opacity: number } }>('llm_wallpaper_settings');
-    return result.llm_wallpaper_settings?.opacity ?? 0.15;
-  });
   await context.serviceWorkers()[0].evaluate(() => chrome.action.openPopup());
   let targetId = '';
   await expect.poll(async () => {
@@ -32,6 +28,6 @@ export async function openToolbar(context: BrowserContext) {
     await session.send('Target.sendMessageToTarget', { sessionId, message: JSON.stringify({ id, method: 'Runtime.evaluate', params: { expression, awaitPromise: true, returnByValue: true } }) });
     return (await result).result.value;
   }
-  await expect.poll(() => evaluate("document.querySelector('#opacityInput')?.value")).toBe(String(storedOpacity));
+  await expect.poll(() => evaluate("document.body.dataset.ready")).toBe('true');
   return { evaluate, close: async () => { await session.send('Target.closeTarget', { targetId }); await session.detach(); } };
 }

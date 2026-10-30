@@ -8,7 +8,7 @@
     "build:release": "bun run build && bun scripts/package-release.ts",
     "test:unit": "bun test tests/*.test.ts",
     "test:dom": "bunx playwright test",
-    "test:browser": "bunx playwright test wallpaper.spec.ts reading-comfort.spec.ts comfort-layout.spec.ts wallpaper-viewport.spec.ts",
+    "test:browser": "bunx playwright test wallpaper.spec.ts reading-comfort.spec.ts comfort-layout.spec.ts wallpaper-viewport.spec.ts contextual-toolbar.spec.ts",
     "test:monitor": "bunx playwright test dom-check.spec.ts"
   },
   "devDependencies": {

@@ -464,20 +464,25 @@ test('A rejected upload can retry the same file', async ({ extensionContext }) =
 
 test('Actual toolbar popup changes persist and opens full settings', async ({ extensionContext }) => {
   const settings = await openSettings(extensionContext);
+  await settings.getByRole('radio', { name: 'Mist', exact: true }).check();
+  await extensionContext.route('https://example.test/**', route => route.fulfill({ contentType: 'text/html', body: '<main>Unsupported page</main>' }));
+  const unsupported = await extensionContext.newPage(); await unsupported.goto('https://example.test'); await unsupported.bringToFront();
   const popup = await openToolbar(extensionContext);
   expect(await popup.evaluate("chrome.extension.getViews({ type: 'popup' }).includes(window)")).toBe(true);
-  await popup.evaluate("document.querySelector('#enabledInput').click()");
+  await popup.evaluate("document.querySelector('#globalPauseBtn').click()");
   await expect.poll(() => popup.evaluate("document.querySelector('#saveStatus').textContent")).toBe('Saved');
   await popup.close();
   await expect(settings.getByRole('checkbox', { name: 'Enable wallpaper' })).not.toBeChecked();
   const reopened = await openToolbar(extensionContext);
-  expect(await reopened.evaluate("document.querySelector('#enabledInput').checked")).toBe(false);
+  expect(await reopened.evaluate("document.querySelector('#globalPauseBtn').textContent")).toBe('Resume everywhere');
+  expect(await settings.evaluate(async () => (await chrome.tabs.getCurrent())?.active)).toBe(false);
   await reopened.evaluate("document.querySelector('#manageWallpaperBtn').click()");
-  await expect.poll(() => extensionContext.pages().filter((page) => page.url().endsWith('/popup.html')).length).toBeGreaterThan(0);
+  await expect.poll(() => settings.evaluate(async () => (await chrome.tabs.getCurrent())?.active)).toBe(true);
 });
 
 test('Closing the actual popup during a save does not lose its final change', async ({ extensionContext }) => {
   const settings = await openSettings(extensionContext);
+  await settings.getByRole('radio', { name: 'Mist', exact: true }).check();
   const popup = await openToolbar(extensionContext);
   const worker = extensionContext.serviceWorkers()[0];
   await worker.evaluate(() => {
@@ -487,7 +492,7 @@ test('Closing the actual popup during a save does not lose its final change', as
       return set(...args as [any]);
     }) as any;
   });
-  await popup.evaluate("document.querySelector('#enabledInput').click()");
+  await popup.evaluate("document.querySelector('#globalPauseBtn').click()");
   await expect.poll(() => worker.evaluate(() => typeof (globalThis as any).releaseSave)).toBe('function');
   await expect(settings.getByRole('checkbox', { name: 'Enable wallpaper' })).toBeChecked();
   await popup.close();

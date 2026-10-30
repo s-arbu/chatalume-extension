@@ -47,7 +47,7 @@ This does not bypass authentication. It tests with an account the project mainta
 - On-page right-center control for current-provider pause/resume, reset, and settings; keyboard dismissal and compact narrow-window layout.
 - Theme-aware rectangular switch and a global General setting to hide the whole on-page control without changing wallpaper state.
 - Localized reading comfort (Off / Enabled): text-based bounds, feathered blur, streaming/scroll clipping, theme changes, and provider preferences. No welcome/composer treatment or opaque Solid mode. Gemini light-mode conversation and new-chat behavior checked live; other provider acceptance remains open.
-- Toolbar controls with a persistent full settings tab for image processing.
+- Contextual toolbar with provider state, site/global pause, site reset, collapsed provider adjustments, unsupported/empty guidance, and persistent full settings for source/global edits. Actual-popup regressions and live Brave/Gemini inspection cover this hierarchy; the five-tester discovery gate remains open.
 - Global pause, separate remove/reset actions, thumbnail and save/error feedback.
 - Explicit readability blending, cover/contain, and image position.
 - Offline Mist, Dusk, and Paper presets alongside the retained custom upload.

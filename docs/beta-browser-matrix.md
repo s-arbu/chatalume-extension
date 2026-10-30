@@ -36,3 +36,7 @@ Solid mode and its former contrast matrix were removed. Local blur does not guar
 ### Sidebar-aware wallpaper framing
 
 Provider-shaped fixtures verify expanded, compact and hidden navigation, responsive/mobile overlay drawers, window resize, contain mode, replaced/hidden/missing panes, pause/resume, and position-only transitions. Live Gemini/Brave light-mode screenshots confirmed that the wallpaper's crop starts at the expanded sidebar edge and moves to the compact rail edge after collapse; expanded navigation was restored. Current authenticated ChatGPT/Claude layouts remain unverified. No image/settings migration is involved.
+
+### Contextual browser toolbar
+
+Actual action-popup tests cover active-provider detection for all three providers, site-only vs global pause, global precedence, provider-scoped adjustments, reset preserving source/comfort/enabled choices, inheritance, reopening, rejected writes, duplicate clicks while a write is held, popup close durability, and unsupported/empty setup. Essential actions are checked against popup bounds. Existing full-settings regressions remain in the suite. Live Brave/Gemini inspection showed the new hierarchy fitting without advanced controls; Tab focused the site pause button and Escape dismissed the popup. No live wallpaper preference was changed. Five-user discovery testing, screen-reader acceptance and full zoom/forced-colors checks remain separate roadmap gates.

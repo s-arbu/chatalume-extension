@@ -48,7 +48,18 @@ for (const site of TARGET_SITES) for (const theme of ['light', 'dark'] as const)
     const gutter = { x: 320, y: 140, width: 120, height: 180 };
     const clearWallpaper = await page.screenshot({ clip: gutter });
     await mode.selectOption('off'); await expect(regions).toHaveCount(0);
-    expect((await page.screenshot({ clip: gutter })).equals(clearWallpaper)).toBe(true);
+    const afterWallpaper = await page.screenshot({ clip: gutter });
+    const gutterDifference = await page.evaluate(async ({ before, after }) => {
+      async function pixels(data: string) {
+        const image = new Image(); image.src = data; await image.decode();
+        const canvas = document.createElement('canvas'); canvas.width = image.width; canvas.height = image.height;
+        const ctx = canvas.getContext('2d')!; ctx.drawImage(image, 0, 0);
+        return ctx.getImageData(0, 0, image.width, image.height).data;
+      }
+      const a = await pixels(before), b = await pixels(after);
+      return a.reduce((max, value, i) => Math.max(max, Math.abs(value - b[i]!)), 0);
+    }, { before: `data:image/png;base64,${clearWallpaper.toString('base64')}`, after: `data:image/png;base64,${afterWallpaper.toString('base64')}` });
+    expect(gutterDifference).toBe(0);
     expect(await page.locator('pre').evaluate(el => ({ font: getComputedStyle(el).font, width: el.getBoundingClientRect().width, color: getComputedStyle(el).backgroundColor }))).toEqual(native);
     await expect(page.locator('#llm-wallpaper-overlay')).toBeAttached();
     await mode.selectOption('soft'); await expect(regions).toHaveCount(1);

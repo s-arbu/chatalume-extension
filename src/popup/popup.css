@@ -109,3 +109,20 @@ body.toolbar { width: 360px; min-height: 0; }
 #presetGallery img { width: 52px; height: 34px; object-fit: cover; border-radius: 4px; }
 body.toolbar { max-height: 580px; overflow-y: auto; }
 body.toolbar { align-items: flex-start; }
+
+.toolbar * { box-sizing: border-box; }
+.toolbar .section { margin-bottom: 14px; padding-bottom: 14px; }
+.toolbar [hidden] { display: none !important; }
+.toolbar-context h2 { margin: 0 0 8px; font-size: 20px; }
+.toolbar-context p { line-height: 1.5; }
+.toolbar-actions { display: grid; gap: 8px; margin: 16px 0 8px; }
+.toolbar .btn { min-height: 40px; }
+.toolbar #globalPauseBtn, .toolbar #manageWallpaperBtn { width: 100%; }
+.toolbar button:disabled, .toolbar button[aria-disabled="true"] { opacity: .6; cursor: default; }
+.toolbar-source { display: flex; align-items: center; gap: 12px; }
+.toolbar-source img { width: 72px; height: 45px; object-fit: cover; border-radius: 4px; }
+.toolbar summary { cursor: pointer; min-height: 40px; display: list-item; align-content: center; font-size: 14px; }
+.toolbar details[open] summary { margin-bottom: 12px; }
+.toolbar #scopeNotice { margin-bottom: 16px; line-height: 1.5; }
+.toolbar #uploadError, .toolbar #saveStatus:not(:empty) { margin-top: 12px; }
+.toolbar :is(button, summary, input, select):focus-visible { outline: 3px solid #93c5fd; outline-offset: 3px; }
