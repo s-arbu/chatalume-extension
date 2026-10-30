@@ -3,10 +3,12 @@ import { getProvider } from '../providers';
 import { resolveWallpaper } from '../utils/wallpaperSource';
 import { createQuickControls } from './quickControls';
 import { createReadingComfort } from './readingComfort';
+import { createWallpaperViewport } from './wallpaperViewport';
 
 const provider = getProvider(new URL(window.location.href));
 let currentSettings: WallpaperSettings | undefined;
 let quickControls: ReturnType<typeof createQuickControls> | undefined;
+let wallpaperViewport: ReturnType<typeof createWallpaperViewport> | undefined;
 let hasReadingRegions = false;
 let currentTheme: 'light' | 'dark' = 'light';
 let readingComfort: ReturnType<typeof createReadingComfort> | undefined;
@@ -63,12 +65,14 @@ function restoreProviderUi() {
   updateReadingComfort();
   const settings = currentSettings && provider ? getEffectiveSettings(currentSettings, provider.id) : undefined;
   if (!settings?.enabled || !resolveWallpaper(settings)) {
+    wallpaperViewport?.update(null);
     document.getElementById('llm-wallpaper-overlay')?.remove();
     document.querySelector(`link[data-llm-wallpaper-provider="${provider?.id}"]`)?.remove();
     return;
   }
   loadProviderStylesheet();
   injectOverlay();
+  wallpaperViewport?.update(document.getElementById('llm-wallpaper-overlay'));
   applySettings(settings);
 }
 
@@ -97,6 +101,7 @@ async function init() {
 
   const settings = await getSettings();
   currentSettings = settings;
+  wallpaperViewport = createWallpaperViewport(provider);
   readingComfort = createReadingComfort(provider, (visible) => { hasReadingRegions = visible; syncReadingComfortAppearance(); });
   quickControls = createQuickControls(provider, (theme) => { currentTheme = theme; updateReadingComfort(); });
   document.documentElement.appendChild(quickControls.host);
@@ -106,6 +111,7 @@ async function init() {
     const own = '#llm-reading-comfort, #llm-wallpaper-controls, #llm-wallpaper-overlay';
     if (records.every((record) => record.target instanceof Element && record.target.closest(own))) return;
     readingComfort?.refresh();
+    wallpaperViewport?.refresh();
     if (quickControls && !quickControls.host.isConnected) document.documentElement.appendChild(quickControls.host);
     const settings = currentSettings ? getEffectiveSettings(currentSettings, provider.id) : undefined;
     if (settings?.enabled && resolveWallpaper(settings) &&

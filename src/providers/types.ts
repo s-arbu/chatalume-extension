@@ -6,4 +6,5 @@ export interface WallpaperProviderAdapter {
   matches(url: URL): boolean;
   stylesheetPath: string;
   readingSelectors: string;
+  wallpaperViewportSelectors: readonly string[];
 }
