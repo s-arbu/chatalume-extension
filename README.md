@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="public/logo.svg" width="72" alt="LLM Wallpapers logo" />
+  <img src="public/logo.svg" width="72" alt="Chatalume logo" />
 </p>
 
-<h1 align="center">LLM Wallpapers</h1>
+<h1 align="center">Chatalume</h1>
 
 <div align="center">
   <a href="#readme"><strong>README</strong></a>
@@ -20,18 +20,18 @@ A refined Chrome extension for making AI chat windows feel more like your worksp
 
 Use it to put your own image behind [ChatGPT](https://chatgpt.com/), [Claude](https://claude.ai/), and [Gemini](https://gemini.google.com/), then soften it with blur and opacity so the conversation stays readable.
 
-[Report an issue](https://github.com/s-arbu/llm-wallpapers-extension/issues/new) | [View roadmap and issues](https://github.com/s-arbu/llm-wallpapers-extension/issues)
+[Report an issue](https://github.com/s-arbu/chatalume-extension/issues/new) | [View roadmap and issues](https://github.com/s-arbu/chatalume-extension/issues)
 
 ## Works with
 
 - ChatGPT
 - Claude
 - Gemini
-- more coming soon...
+- Additional providers are deferred until the current integrations are dependable.
 
 ## Customize your wallpaper
 
-Supported chat pages show a quick control centered on the right edge. Click the wallpaper switch to pause or resume only that provider; the adjacent **Wallpaper quick controls** button opens reset and settings actions. The control stays available while paused. **Reset this site’s effects** keeps your wallpaper and paused state. If wallpaper is paused everywhere, resume it in settings first. With no wallpaper selected, open settings to choose an upload or preset. The switch and three-dot button stay in a compact horizontal row; Escape closes its panel and returns keyboard focus.
+Supported chat pages show a quick control centered on the right edge. Click the wallpaper switch to pause or resume only that provider; the adjacent **Wallpaper quick controls** button opens reset and settings actions. The control stays available while paused. **Reset this site’s effects** keeps your wallpaper and paused state. If wallpaper is paused everywhere, resume it in settings first. With no wallpaper selected, open settings to choose an upload or preset. The switch and three-dot button form a compact vertical dock; Escape closes its panel and returns keyboard focus.
 
 On first use, full settings offers **Choose a preset**, **Use an image**, or **Skip for now**, with a labelled example-conversation preview and links to the supported providers. Choosing a source or skipping completes setup. Updates preserve existing uploads and effects and do not reopen setup. Support includes a short reminder of how to find or pin the toolbar controls.
 
@@ -51,7 +51,7 @@ The full settings tab also offers **Settings scope**. All providers edits global
 
 ## Why this exists
 
-Most AI chat UIs are clean, but they can also feel cold and generic. LLM Wallpapers lets you keep the clean layout while adding a background that feels more like your own setup.
+Most AI chat UIs are clean, but they can also feel cold and generic. Chatalume lets you keep the clean layout while adding a background that feels more like your own setup.
 
 It is useful when you want:
 
@@ -80,7 +80,7 @@ It is useful when you want:
 4. Open `chrome://extensions` in Chrome.
 5. Turn on Developer mode.
 6. Select Load unpacked and choose the extracted folder.
-7. Open [Gemini](https://gemini.google.com/), [ChatGPT](https://chatgpt.com/), or [Claude](https://claude.ai/), then open LLM Wallpapers from the toolbar.
+7. Open [Gemini](https://gemini.google.com/), [ChatGPT](https://chatgpt.com/), or [Claude](https://claude.ai/), then open Chatalume from the toolbar.
 
 ### From source
 
@@ -191,9 +191,9 @@ See [ROADMAP.md](ROADMAP.md) for the broader plan and the authenticated test-sta
 
 ## Help and feedback
 
-Found a bug or want to suggest a change? [Open an issue](https://github.com/s-arbu/llm-wallpapers-extension/issues/new) with the provider, browser version, and steps to reproduce. If a screenshot helps, include it.
+Found a bug or want to suggest a change? [Open an issue](https://github.com/s-arbu/chatalume-extension/issues/new) with the provider, browser version, and steps to reproduce. If a screenshot helps, include it.
 
-You can also [browse existing issues](https://github.com/s-arbu/llm-wallpapers-extension/issues) before opening a new one.
+You can also [browse existing issues](https://github.com/s-arbu/chatalume-extension/issues) before opening a new one.
 
 ## Contributing
 
@@ -214,3 +214,11 @@ Contributions are welcome. This is still a small early-stage project, so please 
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
+
+## Prerelease preparation
+
+`bun run build:prerelease` builds the extension and prepares a local handoff under `out/chatalume-prerelease-v0.2.0/`, plus a ZIP of that handoff. It includes the exact extension ZIP, a launch website with a working synthetic demo and matching download, a privacy draft, store-listing copy, install/support guidance, and a post-design release checklist. `candidate.json` records the version and SHA-256 and explicitly leaves design, testing and store submission pending.
+
+The command packages builds; it does not run the deferred test suite. The website source is in `site/`, and its ready-to-host output is the handoff's `website/` directory. Nothing is deployed by building it. Choose the final domain and refine design before hosting it publicly.
+
+The release workflow now creates a draft prerelease rather than automatically publishing. Manual dispatch requires an existing version tag. Final design and the owner's full test/sign-off pass must precede publishing a draft or submitting to the Chrome Web Store. See [the prerelease handoff](docs/prerelease/README.md) and [post-design sign-off](docs/prerelease/release-checklist.md).

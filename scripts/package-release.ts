@@ -3,7 +3,7 @@ import { checkRelease } from './check-release';
 
 const version = checkRelease();
 mkdirSync('out', { recursive: true });
-const archive = `out/llm-wallpapers-v${version}.zip`;
+const archive = `out/chatalume-v${version}.zip`;
 const temporaryArchive = `${archive}.tmp`;
 const result = Bun.spawnSync(['python3', '-c', `
 from pathlib import Path

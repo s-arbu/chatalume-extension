@@ -209,7 +209,7 @@ test('On-page requests cannot patch global settings and rejected saves can be re
   session.on('Runtime.executionContextCreated', ({ context }) => contexts.push(context));
   await session.send('Runtime.enable');
   const origin = new URL(extensionContext.serviceWorkers()[0]!.url()).origin;
-  const context = contexts.find((context) => context.origin === origin || context.name === 'LLM Wallpapers - beta');
+  const context = contexts.find((context) => context.origin === origin || context.name === 'Chatalume — Wallpapers for AI Chats (beta)');
   expect(context).toBeDefined();
   const result = await session.send('Runtime.evaluate', {
     contextId: context!.id, awaitPromise: true, returnByValue: true,

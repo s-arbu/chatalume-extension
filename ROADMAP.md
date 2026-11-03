@@ -66,3 +66,10 @@ The GitHub ZIP is generated locally by `bun run build:release`; publishing and C
 ## Next: Public Launch
 
 See [the October 30 public-launch roadmap](docs/superpowers/plans/2026-10-30-public-launch-roadmap.md) and [first-batch implementation evidence](docs/superpowers/plans/2026-10-30-chat-quick-controls.md). Gemini account avatar/name were visible in the current signed-in Brave layout during an enabled/paused comparison; issue #1 remains open because the original disappearance was not reproduced. This is not full authenticated provider coverage.
+
+## Prerelease preparation — before final design
+
+- Local standalone launch-page foundation with an interactive synthetic wallpaper demo, accurate beta install path, privacy and changelog pages.
+- Build-only prerelease handoff with an exact versioned ZIP/checksum, store listing and permission rationales, support guidance, and a post-design sign-off checklist.
+- GitHub release automation prepares a draft; publication is a separate owner action.
+- Final visual design, public website/domain choice, store imagery and the owner's full post-design testing remain pending. Tests were intentionally deferred for this preparation pass.

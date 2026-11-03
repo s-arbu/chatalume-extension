@@ -2,7 +2,7 @@
 
 Status: accepted
 
-LLM Wallpapers will keep wallpaper capabilities provider-neutral and isolate host matching, page transparency rules, DOM details, and provider-specific quirks behind provider adapters. The alpha currently supports Gemini, ChatGPT, and Claude and should advertise only implemented provider behavior; this preserves a path to additional providers without duplicating the settings, storage, and image-processing layers.
+Chatalume will keep wallpaper capabilities provider-neutral and isolate host matching, page transparency rules, DOM details, and provider-specific quirks behind provider adapters. The alpha currently supports Gemini, ChatGPT, and Claude and should advertise only implemented provider behavior; this preserves a path to additional providers without duplicating the settings, storage, and image-processing layers.
 
 ## Considered Options
 

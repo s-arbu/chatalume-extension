@@ -15,7 +15,7 @@ export function createQuickControls(provider: WallpaperProviderAdapter, onThemeC
   root.appendChild(style);
   const content = document.createElement('div');
   content.innerHTML = `
-    <div class="dock" role="group" aria-label="LLM Wallpapers">
+    <div class="dock" role="group" aria-label="Chatalume">
       <button type="button" id="toggle" aria-pressed="false" aria-describedby="notice">
         <span class="switch-track" aria-hidden="true">
           <span class="switch-thumb"><svg viewBox="0 0 24 24"><path class="icon-back" d="M4 15V5a2 2 0 0 1 2-2h10"/><rect x="7" y="7" width="14" height="14" rx="2.5"/><path d="m8 17 4-4 3 3 2-2 3 3"/><circle cx="16.5" cy="11" r="1" fill="currentColor" stroke="none"/></svg></span>
@@ -26,7 +26,7 @@ export function createQuickControls(provider: WallpaperProviderAdapter, onThemeC
       </button>
     </div>
     <section id="panel" class="panel" role="region" aria-label="Wallpaper quick controls" hidden>
-      <h2>LLM Wallpapers</h2>
+      <h2>Chatalume</h2>
       <p id="notice"></p>
       <label class="comfort-setting" for="comfort">Reading comfort<select id="comfort"><option value="off">Off</option><option value="soft">Enabled</option></select></label>
       <button type="button" id="reset">Reset this site’s effects</button>

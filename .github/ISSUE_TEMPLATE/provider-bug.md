@@ -8,10 +8,13 @@ assignees: ""
 
 ## Provider
 
+- Extension version:
 - Provider:
-- Browser channel: Chromium / Chrome
+- Browser: Chrome / Brave / other Chromium
 - Browser version:
-- Route or URL:
+- Page type: new chat / existing conversation / settings (omit private conversation URLs)
+- Theme: light / dark
+- Wallpaper/reading comfort enabled:
 - Authenticated: Yes / No
 
 ## What happened
@@ -26,7 +29,7 @@ Describe the bug and what you expected instead.
 
 ## Screenshot
 
-Attach a screenshot or short clip if available.
+Optionally attach a screenshot or short clip using synthetic text. Hide account details and private images. Do not attach real prompts, session state, cookies, credentials, settings exports or full private conversation URLs.
 
 ## Additional notes
 

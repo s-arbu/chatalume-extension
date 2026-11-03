@@ -10,7 +10,7 @@ const browserChannel = process.env.PLAYWRIGHT_CHANNEL === 'chrome' ? 'chrome' : 
 
 export const test = base.extend<{ extensionContext: BrowserContext }>({
   extensionContext: async ({}, use, testInfo) => {
-    const userDataDir = await mkdtemp(resolve(tmpdir(), 'llm-wallpapers-'));
+    const userDataDir = await mkdtemp(resolve(tmpdir(), 'chatalume-'));
     const extensionPath = resolve('dist');
     const authState = hasAuthState && testInfo.file.endsWith('dom-check.spec.ts')
       ? JSON.parse(await readFile(authStatePath, 'utf8')) as {

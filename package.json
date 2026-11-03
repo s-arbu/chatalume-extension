@@ -1,5 +1,5 @@
 {
-  "name": "llm-wallpapers",
+  "name": "chatalume",
   "version": "0.2.0",
   "module": "src/content/content.ts",
   "type": "module",
@@ -9,7 +9,8 @@
     "test:unit": "bun test tests/*.test.ts",
     "test:dom": "bunx playwright test",
     "test:browser": "bunx playwright test wallpaper.spec.ts reading-comfort.spec.ts comfort-layout.spec.ts wallpaper-viewport.spec.ts contextual-toolbar.spec.ts setup-accessibility.spec.ts",
-    "test:monitor": "bunx playwright test dom-check.spec.ts"
+    "test:monitor": "bunx playwright test dom-check.spec.ts",
+    "build:prerelease": "bun run build:release && bun scripts/package-prerelease.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",

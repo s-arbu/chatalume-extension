@@ -1,6 +1,6 @@
-# LLM Wallpapers
+# Chatalume
 
-LLM Wallpapers personalizes supported AI chat interfaces with a user-selected wallpaper while keeping conversation content readable through adjustable opacity and blur. The current release is an experimental Chromium extension supporting Gemini, ChatGPT, and Claude.
+Chatalume personalizes supported AI chat interfaces with a user-selected wallpaper while keeping conversation content readable through adjustable opacity and blur. The current release is an experimental Chromium extension supporting Gemini, ChatGPT, and Claude.
 
 ## Product Language
 
