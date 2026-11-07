@@ -2,16 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Chatalume Settings</title>
   <link rel="stylesheet" href="src/popup/popup.css">
 </head>
-<body>
+<body class="settings">
 
   <main class="dashboard">
     <header>
       <img class="brand-mark" src="logo.svg" alt="">
-      <h1>Chatalume</h1>
-      <p>Configure your workspace background</p>
+      <div><h1>Chatalume</h1><p>A little more you. A little less distraction.</p></div>
     </header>
 
     <section id="setupIntro" class="section" aria-labelledby="setupTitle" hidden>
@@ -19,47 +19,45 @@
       <p>Choose a look for ChatGPT, Claude, and Gemini. Your wallpaper and settings stay in this browser.</p>
       <div class="setup-actions"><button type="button" class="btn btn-primary" id="setupPresetBtn">Choose a preset</button><button type="button" class="btn btn-secondary" id="setupUploadBtn">Use an image</button><button type="button" class="btn btn-secondary" id="setupSkipBtn">Skip for now</button></div>
     </section>
-    <section class="section" role="region" aria-label="Wallpaper preview">
-      <h2 class="section-title">Example conversation</h2>
-      <div class="workspace-preview"><div id="previewWallpaper" aria-hidden="true"></div><div class="preview-chat"><p class="preview-query">Help me plan a focused afternoon.</p><p class="preview-response">Start with one priority, take a short break, then review what you finished.</p></div></div>
+    <div class="workspace-layout">
+    <section class="section preview-section" role="region" aria-label="Wallpaper preview">
+      <h2 class="section-title">Your workspace</h2>
+      <p class="preview-label">Example conversation</p>
+      <div class="workspace-preview"><div id="previewWallpaper" aria-hidden="true"></div><div id="previewShade" aria-hidden="true"></div><div class="preview-chat"><p class="preview-query">Help me plan a focused afternoon.</p><p class="preview-response">Start with one priority, take a short break, then review what you finished.</p></div></div>
       <p id="previewCaption">Preview only. Choose a wallpaper to apply it.</p>
       <p class="provider-links">Try it on <a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">ChatGPT</a>, <a href="https://claude.ai/" target="_blank" rel="noopener noreferrer">Claude</a>, or <a href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer">Gemini</a>.</p>
     </section>
-    <div class="section">
-      <h2 class="section-title">Wallpaper source</h2>
-      <fieldset id="presetGallery"><legend>Wallpaper presets</legend><label><input type="radio" name="wallpaperSource" value="upload"> Use my upload</label></fieldset>
-      <img id="wallpaperPreview" style="width: 96px; height: 60px; object-fit: cover; margin-bottom: 12px; border-radius: 4px" hidden alt="Selected wallpaper">
+    <div class="controls-column">
+    <div class="section wallpaper-section">
+      <h2 class="section-title">Choose your wallpaper</h2>
+      <p class="section-description">Pick a look or bring your own. Fine-tuning is optional.</p>
+      <fieldset id="presetGallery"><legend>Ready-to-use looks</legend><label><input type="radio" name="wallpaperSource" value="upload"> My image</label></fieldset>
+      <img id="wallpaperPreview" class="source-thumbnail" hidden alt="Selected wallpaper">
       <div class="file-row">
-        <button type="button" id="chooseFileBtn" class="btn btn-primary">Choose File</button>
+        <button type="button" id="chooseFileBtn" class="btn btn-primary">Choose wallpaper</button>
         <input type="file" id="imageInput" accept="image/*,.gif,.png,.jpg,.jpeg,.webp" hidden>
         
         <div class="file-name" id="fileNameDisplay" role="status" aria-label="Wallpaper source">No file chosen</div>
         <button id="resetBtn" class="btn btn-danger">Remove wallpaper</button>
       </div>
-      <p style="margin-top: 12px">Images up to 10 MiB. Stored locally; displayed images can be read by the supported website. Avoid sensitive images.</p>
-      <p id="uploadError" role="alert" style="margin-top: 12px" hidden></p>
-      <p id="saveStatus" role="status" aria-label="Save status" style="margin-top: 12px"></p>
+      <p class="field-note">Images up to 10 MiB. Stored locally; displayed images can be read by the supported website. Avoid sensitive images.</p>
+      <p id="uploadError" role="alert" class="field-note" hidden></p>
+      <p id="saveStatus" role="status" aria-label="Save status" class="field-note"></p>
     </div>
 
     <div class="section">
-      <h2 class="section-title">General settings</h2>
-      <div class="field"><label><input type="checkbox" id="showChatControlsInput" aria-describedby="chatControlsHelp"> Show controls in chats</label></div>
-      <div class="field"><label><input type="checkbox" id="allowAnimationsInput" aria-describedby="motionHelp"> Allow animated wallpapers with reduced motion</label></div>
-      <p id="motionHelp">When your system requests reduced motion, animated GIFs use a still frame. Enable this only if you want them to play anyway.</p>
-      <p id="motionNotice" role="status" hidden></p>
-      <p id="chatControlsHelp">Show the wallpaper switch and quick settings on all supported chat pages. Hiding them keeps your wallpaper enabled. You can always return here from the browser toolbar.</p>
-    </div>
-
-    <div class="section">
-      <h2 class="section-title">Visual effects</h2>
-      <div class="field"><label for="providerScope">Settings scope</label> <select id="providerScope"><option value="global">All providers</option><option value="chatgpt">ChatGPT</option><option value="claude">Claude</option><option value="gemini">Gemini</option></select></div>
-      <p id="scopeNotice" style="margin-bottom: 12px">Wallpaper source and these defaults apply to all providers.</p>
-      <button id="inheritBtn" type="button" class="btn btn-secondary" style="margin-bottom: 12px" hidden>Use global settings</button>
+      <h2 class="section-title">Make it comfortable</h2>
+      <div class="field"><label for="providerScope">Apply settings to</label> <select id="providerScope"><option value="global">All chats · defaults</option><option value="chatgpt">ChatGPT</option><option value="claude">Claude</option><option value="gemini">Gemini</option></select></div>
+      <p id="scopeNotice" class="scope-action">Wallpaper source and these defaults apply to all providers.</p>
+      <button id="inheritBtn" type="button" class="btn btn-secondary scope-action" hidden>Use global settings</button>
       <div class="field"><label><input type="checkbox" id="enabledInput"> Enable wallpaper</label></div>
-      <div class="field"><label for="readingComfortInput">Reading comfort</label> <select id="readingComfortInput" aria-describedby="readingComfortHelp"><option value="off">Off</option><option value="soft">Enabled — local text blur</option></select><p id="readingComfortHelp">Adds a feathered blur behind conversation text, keeping surrounding wallpaper clear. Starts when messages appear; new chats stay untouched.</p></div>
+      <div class="field"><label for="readingComfortInput">Reading comfort</label> <select id="readingComfortInput" aria-describedby="readingComfortHelp"><option value="off">Off</option><option value="soft">On — soften behind text</option></select><p id="readingComfortHelp">Adds a feathered blur behind conversation text, keeping surrounding wallpaper clear. Starts when messages appear; new chats stay untouched.</p></div>
+      <details id="appearanceDetails" class="fine-tuning">
+        <summary>Fine-tune appearance</summary>
+        <p class="section-description">Optional controls for visibility, softness, and framing.</p>
       <div class="field">
         <div class="label-row">
-          <label for="opacityInput">Opacity</label>
+          <label for="opacityInput">Wallpaper visibility</label>
           <span class="val-display" id="opacityVal">15%</span>
         </div>
         <input type="range" id="opacityInput" min="0.05" max="1" step="0.05">
@@ -67,7 +65,7 @@
       
       <div class="field">
         <div class="label-row">
-          <label for="blurInput">Blur Radius</label>
+          <label for="blurInput">Background blur</label>
           <span class="val-display" id="blurVal">0px</span>
         </div>
         <input type="range" id="blurInput" min="0" max="20" step="1">
@@ -81,12 +79,24 @@
       <div class="field"><div class="label-row"><label for="positionXInput">Horizontal position</label><span id="positionXVal">50%</span></div><input type="range" id="positionXInput" min="0" max="100" step="1"></div>
       <div class="field"><div class="label-row"><label for="positionYInput">Vertical position</label><span id="positionYVal">50%</span></div><input type="range" id="positionYInput" min="0" max="100" step="1"></div>
       <button id="resetEffectsBtn" type="button" class="btn btn-secondary">Reset effects</button>
+      </details>
     </div>
 
-    <div class="section">
-      <h2 class="section-title">Support</h2>
+    <details class="section preferences-section">
+      <summary>General settings</summary>
+      <div class="field"><label><input type="checkbox" id="showChatControlsInput" aria-describedby="chatControlsHelp"> Show controls in chats</label></div>
+      <div class="field"><label><input type="checkbox" id="allowAnimationsInput" aria-describedby="motionHelp"> Allow animated wallpapers with reduced motion</label></div>
+      <p id="motionHelp">When your system requests reduced motion, animated GIFs use a still frame. Enable this only if you want them to play anyway.</p>
+      <p id="motionNotice" role="status" hidden></p>
+      <p id="chatControlsHelp">Show the wallpaper switch and quick settings on all supported chat pages. Hiding them keeps your wallpaper enabled. You can always return here from the browser toolbar.</p>
+    </details>
+
+    <div class="section support-section">
+      <h2 class="section-title">Need a hand?</h2>
       <details><summary>Find your controls later</summary><p>Open Chatalume from your browser’s Extensions menu. You can pin it to the toolbar for quicker access. The switch in a supported chat pauses only that site; Manage wallpaper returns here.</p></details>
       <a class="btn btn-secondary" href="https://github.com/s-arbu/chatalume-extension/issues/new" target="_blank" rel="noopener noreferrer">Report an issue</a>
+    </div>
+    </div>
     </div>
   </main>
 

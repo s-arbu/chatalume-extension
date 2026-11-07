@@ -2,18 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Chatalume</title>
   <link rel="stylesheet" href="src/popup/popup.css">
 </head>
 <body class="toolbar">
   <main class="dashboard">
-    <header><h1>Chatalume</h1></header>
+    <header><img class="brand-mark" src="logo.svg" alt=""><div><h1>Chatalume</h1><p>Your chat, your space.</p></div></header>
     <section class="section toolbar-context" aria-labelledby="providerName">
       <h2 id="providerName">Loading chat controls…</h2>
       <p id="contextNotice">Checking the active tab.</p>
       <div id="siteActions" class="toolbar-actions" hidden>
-        <button type="button" id="sitePauseBtn" class="btn btn-primary" disabled>Pause on this site</button>
-        <button type="button" id="resetEffectsBtn" class="btn btn-secondary">Reset this site's effects</button>
+        <button type="button" id="sitePauseBtn" class="btn btn-secondary" disabled>Pause on this site</button>
       </div>
       <button type="button" id="globalPauseBtn" class="btn btn-secondary" disabled>Pause everywhere</button>
       <p id="uploadError" role="alert" hidden></p>
@@ -24,17 +24,17 @@
       <div class="file-name" id="fileNameDisplay" role="status" aria-label="Wallpaper source">No wallpaper selected</div>
     </div>
     <details id="advancedControls" class="section" hidden>
-      <summary>Adjust this site's wallpaper</summary>
+      <summary>Fine-tune this site</summary>
       <select id="providerScope" hidden aria-label="Settings scope"><option value="global">All providers</option><option value="chatgpt">ChatGPT</option><option value="claude">Claude</option><option value="gemini">Gemini</option></select>
       <p id="scopeNotice"></p>
       <input type="checkbox" id="enabledInput" hidden aria-label="Enable wallpaper">
-      <div class="field"><label for="readingComfortInput">Reading comfort</label> <select id="readingComfortInput"><option value="off">Off</option><option value="soft">Enabled — local text blur</option></select></div>
+      <div class="field"><label for="readingComfortInput">Reading comfort</label> <select id="readingComfortInput"><option value="off">Off</option><option value="soft">On — soften behind text</option></select></div>
       <div class="field">
-        <div class="label-row"><label for="opacityInput">Opacity</label><span id="opacityVal">15%</span></div>
+        <div class="label-row"><label for="opacityInput">Wallpaper visibility</label><span id="opacityVal">15%</span></div>
         <input type="range" id="opacityInput" min="0.05" max="1" step="0.05">
       </div>
       <div class="field">
-        <div class="label-row"><label for="blurInput">Blur Radius</label><span id="blurVal">0px</span></div>
+        <div class="label-row"><label for="blurInput">Background blur</label><span id="blurVal">0px</span></div>
         <input type="range" id="blurInput" min="0" max="20" step="1">
       </div>
       <div class="field">
@@ -45,6 +45,7 @@
       <div class="field"><label for="fitInput">Image fit</label> <select id="fitInput"><option value="cover">Cover — fill the chat area</option><option value="contain">Contain — show the whole image</option></select></div>
       <div class="field"><div class="label-row"><label for="positionXInput">Horizontal position</label><span id="positionXVal">50%</span></div><input type="range" id="positionXInput" min="0" max="100" step="1"></div>
       <div class="field"><div class="label-row"><label for="positionYInput">Vertical position</label><span id="positionYVal">50%</span></div><input type="range" id="positionYInput" min="0" max="100" step="1"></div>
+      <button type="button" id="resetEffectsBtn" class="btn btn-secondary">Reset this site's effects</button>
       <button id="inheritBtn" type="button" class="btn btn-secondary">Use global settings</button>
     </details>
     <button type="button" id="manageWallpaperBtn" class="btn btn-primary">Choose wallpaper</button>

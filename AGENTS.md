@@ -71,6 +71,13 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 ## Agent skills
 
+### Design
+
+Before creating, changing, or reviewing extension UI, read [DESIGN.md](DESIGN.md).
+Apply its tokens, component rules, and visual acceptance checks within the requested scope.
+For the legacy prerelease website in `site/`, use the website project's design guide at
+`../chatalume-site/DESIGN.md`; do not apply extension layout rules to marketing pages.
+
 ### Issue tracker
 
 Issues are tracked in GitHub Issues using the `gh` CLI. See `docs/agents/issue-tracker.md`.
