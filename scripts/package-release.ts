@@ -1,4 +1,6 @@
-import { mkdirSync, renameSync, rmSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { basename } from 'node:path';
+import { mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { checkRelease } from './check-release';
 
 const version = checkRelease();
@@ -20,4 +22,6 @@ if (result.exitCode !== 0) {
   process.exit(result.exitCode);
 }
 renameSync(temporaryArchive, archive);
-console.log(`Packaged ${archive}`);
+const sha256 = createHash('sha256').update(readFileSync(archive)).digest('hex');
+writeFileSync(`${archive}.sha256`, `${sha256}  ${basename(archive)}\n`);
+console.log(`Packaged ${archive}\nSHA-256: ${sha256}`);

@@ -160,7 +160,7 @@ test('clamps stored effects and falls back for non-finite values', async () => {
   globalThis.chrome.storage.local.get = (async () => ({ llm_wallpaper_settings: stored })) as any;
   expect(await getSettings()).toMatchObject({ opacity: 0.05, blur: 20 });
   stored = { opacity: Infinity, blur: NaN };
-  expect(await getSettings()).toMatchObject({ opacity: 0.15, blur: 0 });
+  expect(await getSettings()).toMatchObject({ opacity: 1, blur: 0 });
   stored = { opacity: 5, blur: -10, imageDataUrl: 'https://example.com/image.png' };
   expect(await getSettings()).toMatchObject({ opacity: 1, blur: 0, imageDataUrl: null });
 });
@@ -275,4 +275,20 @@ test('setup and motion preferences migrate without reopening setup or losing leg
   expect(settingsStore.normalizeSettings({ setupComplete: false, allowAnimations: true } as any)).toMatchObject({ setupComplete: false, allowAnimations: true });
   await expect(settingsStore.saveProviderSettings('gemini', { allowAnimations: true } as any)).rejects.toThrow('Only provider effects');
   await expect(settingsStore.saveProviderSettings('gemini', { setupComplete: true } as any)).rejects.toThrow('Only provider effects');
+});
+
+
+test('full-visibility defaults preserve saved values, uploads and provider preferences', async () => {
+  expect(settingsStore.normalizeSettings().opacity).toBe(1);
+  let record: any = { version: 11, opacity: .15, imageDataUrl: 'data:image/png;base64,legacy', fileName: 'legacy.png', enabled: false, readingComfort: 'off', providerOverrides: { claude: { opacity: .4, enabled: false, readingComfort: 'off' } } };
+  chrome.storage.local.get = (async () => ({ llm_wallpaper_settings: record })) as any;
+  chrome.storage.local.set = (async (value: any) => { record = value.llm_wallpaper_settings; }) as any;
+  await saveSettings({});
+  expect(record).toMatchObject({ opacity: .15, fileName: 'legacy.png', enabled: false });
+  expect(settingsStore.getEffectiveSettings(record, 'claude').opacity).toBe(.4);
+  await saveSettings({ imageDataUrl: 'data:image/png;base64,new', fileName: 'new.png' });
+  expect(record.opacity).toBe(.15);
+  await settingsStore.saveProviderSettings('claude', settingsStore.DEFAULT_EFFECTS);
+  expect(record.providerOverrides.claude).toMatchObject({ opacity: 1, enabled: false, readingComfort: 'off' });
+  expect(record).toMatchObject({ fileName: 'new.png', opacity: .15, enabled: false, readingComfort: 'off' });
 });

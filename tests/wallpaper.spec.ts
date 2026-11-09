@@ -16,13 +16,14 @@ test('General visibility setting hides the entire chat dock without pausing wall
   await toggle.click();
   await expect(toggle).toHaveAttribute('aria-pressed', 'true');
   await page.getByRole('button', { name: 'Wallpaper quick controls' }).click();
-  await settings.getByLabel('Settings scope').selectOption('claude');
+  await settings.getByLabel('Apply settings to').selectOption('claude');
   const visible = settings.getByRole('checkbox', { name: 'Show controls in chats', exact: true });
   await visible.uncheck();
   await expect(page.locator('#llm-wallpaper-controls')).toBeHidden();
   await expect(page.getByRole('button', { name: 'Wallpaper quick controls' })).toBeHidden();
   await expect(page.locator('#llm-wallpaper-overlay')).toBeAttached();
   await page.reload(); await settings.reload();
+  await settings.locator('.preferences-section').evaluate(el => { (el as HTMLDetailsElement).open = true; });
   await expect(visible).not.toBeChecked();
   await expect(page.locator('#llm-wallpaper-controls')).toBeHidden();
   await visible.check();
@@ -123,9 +124,10 @@ test('On-page controls explain empty and globally paused states without changing
   await expect(page.getByText('Choose a wallpaper in settings to get started.')).toBeVisible();
   await settings.close();
   const opened = extensionContext.waitForEvent('page');
-  await page.getByRole('button', { name: 'Open wallpaper settings', exact: true }).click();
+  await page.getByRole('button', { name: 'Edit wallpaper', exact: true }).click();
   settings = await opened;
   await expect(settings.locator('#providerScope')).toBeVisible();
+  await settings.getByLabel('Apply settings to').selectOption('global');
   await settings.getByRole('radio', { name: 'Mist', exact: true }).check();
   await expect(toggle).toBeEnabled();
   await settings.getByRole('checkbox', { name: 'Enable wallpaper' }).uncheck();
@@ -137,12 +139,12 @@ test('On-page controls explain empty and globally paused states without changing
   await expect(toggle).toHaveAttribute('aria-pressed', 'true');
 });
 
-test('On-page reset preserves the wallpaper and pause state, and keyboard dismissal restores focus', async ({ extensionContext }) => {
+test('Editor reset preserves the wallpaper and pause state, and keyboard dismissal restores focus', async ({ extensionContext }) => {
   await extensionContext.route('https://claude.ai/**', (route) => route.fulfill({ contentType: 'text/html', body: '<main><button>Native action</button></main>' }));
   const settings = await openSettings(extensionContext);
   await settings.getByRole('radio', { name: 'Dusk', exact: true }).check();
-  await settings.getByLabel('Settings scope').selectOption('claude');
-  await settings.getByLabel('Blur Radius').evaluate((input: HTMLInputElement) => { input.value = '8'; input.dispatchEvent(new Event('input')); });
+  await settings.getByLabel('Apply settings to').selectOption('claude');
+  await settings.getByLabel('Background blur').evaluate((input: HTMLInputElement) => { input.value = '8'; input.dispatchEvent(new Event('input')); });
   const page = await extensionContext.newPage(); await page.goto('https://claude.ai');
   const toggle = page.getByRole('button', { name: 'Wallpaper on Claude', exact: true });
   await toggle.focus(); await page.keyboard.press('Space');
@@ -155,8 +157,8 @@ test('On-page reset preserves the wallpaper and pause state, and keyboard dismis
   const disclosure = page.getByRole('button', { name: 'Wallpaper quick controls' });
   await disclosure.focus(); await page.keyboard.press('Enter');
   await expect(disclosure).toHaveAttribute('aria-expanded', 'true');
-  await page.getByRole('button', { name: 'Reset this site’s effects', exact: true }).click();
-  await expect(settings.getByLabel('Blur Radius')).toHaveValue('0');
+  await settings.getByRole('button', { name: 'Reset provider effects', exact: true }).click();
+  await expect(settings.getByLabel('Background blur')).toHaveValue('0');
   await expect(settings.getByRole('radio', { name: 'Dusk', exact: true })).toBeChecked();
   await expect(toggle).toHaveAttribute('aria-pressed', 'false');
   // Focus may leave the panel while a saving button is disabled, or by tabbing into the page.
@@ -185,7 +187,7 @@ test('On-page controls stay usable in dark mode, narrow windows, and provider CS
   await expect(toggle.locator('.switch-thumb')).toBeVisible();
   await page.getByRole('button', { name: 'Wallpaper quick controls' }).click();
   const panel = page.getByRole('region', { name: 'Wallpaper quick controls' });
-  await expect(panel).toHaveCSS('background-color', 'rgb(32, 32, 36)');
+  await expect(panel).toHaveCSS('background-color', 'rgb(24, 24, 27)');
   const bounds = (await panel.boundingBox())!;
   expect(bounds.x).toBeGreaterThanOrEqual(0);
   expect(bounds.x + bounds.width).toBeLessThanOrEqual(390);
@@ -304,7 +306,7 @@ test('Reset effects preserves the selected image and paused state', async ({ ext
     }, value);
   }
   await page.getByRole('button', { name: 'Reset effects', exact: true }).click();
-  await expect(page.locator('#opacityInput')).toHaveValue('0.15');
+  await expect(page.locator('#opacityInput')).toHaveValue('1');
   await expect(page.locator('#blurInput')).toHaveValue('0');
   await expect(page.getByRole('checkbox', { name: 'Enable wallpaper' })).not.toBeChecked();
   await expect(page.locator('#fileNameDisplay')).toHaveText('wallpaper.gif');
@@ -351,13 +353,13 @@ test('Provider overrides inherit, remain isolated, and respect global pause', as
   await settings.getByRole('radio', { name: 'Mist', exact: true }).check();
   const chatgpt = await extensionContext.newPage(); await chatgpt.goto('https://chatgpt.com');
   const claude = await extensionContext.newPage(); await claude.goto('https://claude.ai');
-  await settings.getByLabel('Settings scope').selectOption('chatgpt');
-  await settings.getByLabel('Opacity', { exact: true }).evaluate((input: HTMLInputElement) => { input.value = '0.6'; input.dispatchEvent(new Event('input')); });
+  await settings.getByLabel('Apply settings to').selectOption('chatgpt');
+  await settings.getByLabel('Wallpaper visibility', { exact: true }).evaluate((input: HTMLInputElement) => { input.value = '0.6'; input.dispatchEvent(new Event('input')); });
   await expect(chatgpt.locator('#llm-wallpaper-overlay')).toHaveCSS('opacity', '0.6');
-  await expect(claude.locator('#llm-wallpaper-overlay')).toHaveCSS('opacity', '0.15');
+  await expect(claude.locator('#llm-wallpaper-overlay')).toHaveCSS('opacity', '1');
   await settings.getByRole('button', { name: 'Use global settings', exact: true }).click();
-  await expect(chatgpt.locator('#llm-wallpaper-overlay')).toHaveCSS('opacity', '0.15');
-  await settings.getByLabel('Settings scope').selectOption('global');
+  await expect(chatgpt.locator('#llm-wallpaper-overlay')).toHaveCSS('opacity', '1');
+  await settings.getByLabel('Apply settings to').selectOption('global');
   await settings.getByRole('checkbox', { name: 'Enable wallpaper' }).uncheck();
   await expect(chatgpt.locator('#llm-wallpaper-overlay')).toHaveCount(0);
   await expect(claude.locator('#llm-wallpaper-overlay')).toHaveCount(0);
@@ -389,7 +391,7 @@ test('Offline presets retain the upload and Remove clears both sources', async (
   expect(await settings.getByRole('img', { name: 'Dusk', exact: true }).evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
   await page.reload();
   await expect(page.locator('#llm-wallpaper-overlay')).toHaveCSS('background-image', /wallpapers\/dusk.svg/);
-  await settings.getByRole('radio', { name: 'Use my upload', exact: true }).check();
+  await settings.getByRole('radio', { name: 'My image', exact: true }).check();
   await expect(page.locator('#llm-wallpaper-overlay')).toHaveCSS('background-image', /data:image\/gif/);
   await settings.getByRole('radio', { name: 'Mist', exact: true }).check();
   await settings.getByRole('button', { name: 'Remove wallpaper', exact: true }).click();
@@ -623,7 +625,7 @@ test('Local: overlapping saves in two settings tabs preserve both changes', asyn
 
 test('Local: keyboard users can upload and identify the controls', async ({ extensionContext }) => {
   const page = await openSettings(extensionContext);
-  const choose = page.getByRole('button', { name: 'Choose File', exact: true });
+  const choose = page.getByRole('button', { name: 'Choose wallpaper', exact: true });
   for (let step = 0; step < 10; step++) {
     await page.keyboard.press('Tab');
     if (await choose.evaluate((button) => button === document.activeElement)) break;
@@ -634,8 +636,8 @@ test('Local: keyboard users can upload and identify the controls', async ({ exte
   const chooser = await chooserPromise;
   await chooser.setFiles({ name: 'wallpaper.gif', mimeType: 'image/gif', buffer: Buffer.from('R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==', 'base64') });
   await expect(page.getByRole('status', { name: 'Wallpaper source' })).toHaveText('wallpaper.gif');
-  await expect(page.getByRole('slider', { name: 'Opacity', exact: true })).toBeVisible();
-  await expect(page.getByRole('slider', { name: 'Blur Radius', exact: true })).toBeVisible();
+  await expect(page.getByRole('slider', { name: 'Wallpaper visibility', exact: true })).toBeVisible();
+  await expect(page.getByRole('slider', { name: 'Background blur', exact: true })).toBeVisible();
 });
 
 for (const site of TARGET_SITES) {

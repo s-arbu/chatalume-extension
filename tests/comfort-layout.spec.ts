@@ -17,7 +17,7 @@ for (const site of TARGET_SITES) for (const theme of ['light', 'dark'] as const)
     </script></body></html>` }));
     const settings = await openSettings(extensionContext);
     await settings.getByRole('radio', { name: 'Dusk', exact: true }).check();
-    await settings.getByLabel('Opacity', { exact: true }).fill('1');
+    await settings.getByLabel('Wallpaper visibility', { exact: true }).fill('1');
     const mode = settings.getByLabel('Reading comfort', { exact: true });
     const page = await extensionContext.newPage(); await page.emulateMedia({ colorScheme: theme });
     await page.setViewportSize({ width: 1440, height: 900 }); await page.goto(site.url);

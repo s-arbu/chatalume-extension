@@ -29,15 +29,13 @@ export function createQuickControls(provider: WallpaperProviderAdapter, onThemeC
       <h2>Chatalume</h2>
       <p id="notice"></p>
       <label class="comfort-setting" for="comfort">Reading comfort<select id="comfort"><option value="off">Off</option><option value="soft">Enabled</option></select></label>
-      <button type="button" id="reset">Reset this site’s effects</button>
-      <button type="button" id="settings">Open wallpaper settings</button>
+      <button type="button" id="settings">Edit wallpaper</button>
       <p id="status" role="status" aria-live="polite"></p>
     </section>`;
   root.appendChild(content);
   const toggle = root.querySelector<HTMLButtonElement>('#toggle')!;
   const more = root.querySelector<HTMLButtonElement>('#more')!;
   const panel = root.querySelector<HTMLElement>('#panel')!;
-  const reset = root.querySelector<HTMLButtonElement>('#reset')!;
   const settingsButton = root.querySelector<HTMLButtonElement>('#settings')!;
   const notice = root.querySelector<HTMLElement>('#notice')!;
   const status = root.querySelector<HTMLElement>('#status')!;
@@ -60,9 +58,8 @@ export function createQuickControls(provider: WallpaperProviderAdapter, onThemeC
     comfort.setAttribute('aria-disabled', String(busy));
     toggle.setAttribute('aria-pressed', String(enabled));
     toggle.disabled = !source || !settings.enabled;
-    reset.disabled = !source;
     // Pending saves stay in the keyboard sequence; act() prevents duplicate writes.
-    for (const button of [toggle, reset, settingsButton]) button.setAttribute('aria-disabled', String(busy || button.disabled));
+    for (const button of [toggle, settingsButton]) button.setAttribute('aria-disabled', String(busy || button.disabled));
     notice.textContent = !source ? 'Choose a wallpaper in settings to get started.'
       : !settings.enabled ? 'Paused everywhere. Resume in wallpaper settings.'
       : `Wallpaper ${enabled ? 'on' : 'off'} for ${name}. Other sites keep their settings.`;
@@ -98,7 +95,6 @@ export function createQuickControls(provider: WallpaperProviderAdapter, onThemeC
     if (event.isTrusted) void act('set-enabled', !getEffectiveSettings(saved, provider.id).enabled);
   });
   more.addEventListener('click', () => setOpen(panel.hidden === true));
-  reset.addEventListener('click', (event) => { if (event.isTrusted) void act('reset-effects'); });
   settingsButton.addEventListener('click', (event) => { if (event.isTrusted) void act('open-settings'); });
   comfort.addEventListener('change', (event) => {
     if (!event.isTrusted || busy) { render(saved); return; }

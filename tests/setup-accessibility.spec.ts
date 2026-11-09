@@ -33,7 +33,7 @@ test('Skip applies no wallpaper and updates preserve an existing setup', async (
   await settings.reload(); await expect(settings.locator('#setupIntro')).toBeHidden();
   await expect(settings.getByRole('radio', { name: 'Dusk', exact: true })).toBeChecked();
   await expect(settings.getByLabel('Enable wallpaper', { exact: true })).not.toBeChecked();
-  await expect(settings.getByLabel('Opacity', { exact: true })).toHaveValue('0.65');
+  await expect(settings.getByLabel('Wallpaper visibility', { exact: true })).toHaveValue('0.65');
 });
 
 test('Reduced motion freezes GIFs locally, allows explicit animation and responds to preference changes', async ({ extensionContext }) => {
@@ -72,9 +72,9 @@ test('Settings reflow, focus, slider units and accessibility survive narrow and 
   await expect.poll(() => settings.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await settings.getByRole('button', { name: 'Skip for now', exact: true }).click();
   await settings.getByRole('radio', { name: 'Paper', exact: true }).check();
-  await settings.getByLabel('Opacity', { exact: true }).focus(); await settings.keyboard.press('ArrowRight');
-  await expect(settings.getByLabel('Opacity', { exact: true })).toHaveAttribute('aria-valuetext', /percent/);
-  await expect(settings.getByLabel('Opacity', { exact: true })).toHaveCSS('outline-style', 'solid');
+  await settings.getByLabel('Wallpaper visibility', { exact: true }).focus(); await settings.keyboard.press('ArrowRight');
+  await expect(settings.getByLabel('Wallpaper visibility', { exact: true })).toHaveAttribute('aria-valuetext', /percent/);
+  await expect(settings.getByLabel('Wallpaper visibility', { exact: true })).toHaveCSS('outline-style', 'solid');
   for (const forcedColors of ['none', 'active'] as const) {
     await settings.emulateMedia({ forcedColors });
     const report = await new AxeBuilder({ page: settings }).withTags(['wcag2a','wcag2aa','wcag21aa','wcag22aa']).analyze();
@@ -135,7 +135,7 @@ test('An unfinished still frame cannot replace a newer source, and decode failur
   await expect(settings.locator('#wallpaperPreview')).not.toHaveAttribute('src', `data:image/png;base64,${motionGif.toString('base64')}`);
   await settings.getByRole('radio', { name: 'Mist', exact: true }).check();
   await settings.evaluate(() => { window.createImageBitmap = (async () => { throw new Error('Decode failed for test'); }) as any; });
-  await settings.getByRole('radio', { name: 'Use my upload', exact: true }).check();
+  await settings.getByRole('radio', { name: 'My image', exact: true }).check();
   await expect(settings.locator('#motionNotice')).toContainText('Could not make a still frame');
   const audit = await new AxeBuilder({ page: settings }).withTags(['wcag2a','wcag2aa','wcag21aa','wcag22aa']).analyze();
   expect(audit.violations.filter(v => ['serious','critical'].includes(v.impact || '')).map(v => v.id)).toEqual([]);

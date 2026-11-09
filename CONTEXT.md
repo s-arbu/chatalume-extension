@@ -34,3 +34,8 @@ _Avoid_: Private cloud, synced settings
 - Shared capabilities include wallpaper selection, image compression, local storage, opacity, blur, reset, and settings UI.
 - Cloud sync, accounts, and a shared wallpaper library are outside the initial product boundary.
 - The alpha release may change APIs and settings and should direct users to GitHub Issues for reports and requests.
+
+
+## 0.2 interaction defaults
+
+The toolbar and on-page menu provide quick wallpaper/reading-comfort controls and a link to the full editor. The editor is the only place for sliders, framing and reset. Provider-scoped links select that provider and reuse an open editor. Wallpaper visibility defaults to 1 (100%); explicit persisted values and provider overrides are retained. Conversation blur still starts with messages. Native controls receive no additional readability surfaces; welcome screens and composers remain outside conversation comfort. Preset IDs and paths remain stable; the original generated landscape images are embedded locally in their SVG containers.

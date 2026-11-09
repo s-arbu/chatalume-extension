@@ -10,8 +10,8 @@ for (const site of TARGET_SITES) test(`${site.name}: actual toolbar scopes every
   await page.bringToFront();
   const popup = await openToolbar(extensionContext);
   await expect.poll(() => popup.evaluate("document.querySelector('#providerName')?.textContent")).toBe(site.name);
-  expect(await popup.evaluate("document.querySelector('#advancedControls').open")).toBe(false);
-  await expect.poll(() => popup.evaluate("['sitePauseBtn','resetEffectsBtn','globalPauseBtn','manageWallpaperBtn'].every(id => { const b = document.getElementById(id).getBoundingClientRect(); return b.bottom <= innerHeight && b.right <= innerWidth; })")).toBe(true);
+  expect(await popup.evaluate("document.querySelectorAll('input[type=range]').length")).toBe(0);
+  await expect.poll(() => popup.evaluate("['sitePauseBtn','readingComfortInput','globalPauseBtn','manageWallpaperBtn'].flatMap(id => { const b = document.getElementById(id).getBoundingClientRect(); return b.bottom <= innerHeight && b.right <= innerWidth ? [] : [{id,bottom:b.bottom,right:b.right,height:innerHeight,width:innerWidth}]; })")).toEqual([]);
   await popup.evaluate("document.querySelector('#sitePauseBtn').click()");
   await expect(page.locator('#llm-wallpaper-overlay')).toHaveCount(0);
   await expect(other.locator('#llm-wallpaper-overlay')).toBeAttached();
@@ -26,18 +26,18 @@ for (const site of TARGET_SITES) test(`${site.name}: actual toolbar scopes every
   expect(await reopened.evaluate("document.querySelector('#contextNotice').textContent")).toContain('everywhere');
   await reopened.evaluate("document.querySelector('#globalPauseBtn').click()");
   await expect(page.locator('#llm-wallpaper-overlay')).toBeAttached();
-  await reopened.evaluate("document.querySelector('#advancedControls').open = true; const input = document.querySelector('#blurInput'); input.value = '8'; input.dispatchEvent(new Event('input'))");
+  await reopened.evaluate("const comfortInput = document.querySelector('#readingComfortInput'); comfortInput.value = 'off'; comfortInput.dispatchEvent(new Event('change'))");
+  await expect.poll(() => reopened.evaluate("document.querySelector('#saveStatus').textContent")).toBe('Saved');
+  await reopened.evaluate("document.querySelector('#manageWallpaperBtn').click()");
+  await expect(settings).toHaveURL(new RegExp(`#provider=${site.name.toLowerCase()}$`));
+  await expect(settings.locator('#providerScope')).toHaveValue(site.name.toLowerCase());
+  await expect(settings.locator('#readingComfortInput')).toHaveValue('off');
+  await settings.getByLabel('Background blur').evaluate((input: HTMLInputElement) => { input.value = '8'; input.dispatchEvent(new Event('input')); });
   await expect(page.locator('#llm-wallpaper-overlay')).toHaveCSS('filter', 'blur(8px)');
   await expect(other.locator('#llm-wallpaper-overlay')).toHaveCSS('filter', 'blur(0px)');
-  await reopened.evaluate("const comfortInput = document.querySelector('#readingComfortInput'); comfortInput.value = 'off'; comfortInput.dispatchEvent(new Event('change'))");
-  await expect.poll(() => reopened.evaluate("chrome.storage.local.get('llm_wallpaper_settings').then(r => r.llm_wallpaper_settings.providerOverrides[document.querySelector('#providerScope').value].readingComfort)")).toBe('off');
-  await reopened.evaluate("document.querySelector('#resetEffectsBtn').click()");
+  await settings.getByRole('button', { name: 'Reset provider effects', exact: true }).click();
   await expect(page.locator('#llm-wallpaper-overlay')).toHaveCSS('filter', 'blur(0px)');
   await expect(settings.getByRole('status', { name: 'Wallpaper source' })).toHaveText('Dusk');
-  expect(await reopened.evaluate("chrome.storage.local.get('llm_wallpaper_settings').then(r => { const o = r.llm_wallpaper_settings.providerOverrides[document.querySelector('#providerScope').value]; return { enabled: o.enabled, readingComfort: o.readingComfort }; })")).toEqual({ enabled: true, readingComfort: 'off' });
-  await reopened.evaluate("document.querySelector('#inheritBtn').click()");
-  await expect.poll(() => reopened.evaluate("document.querySelector('#scopeNotice').textContent")).toContain('global');
-  await reopened.close();
 });
 
 test('Unsupported and empty toolbar states offer setup without claiming site changes', async ({ extensionContext }) => {
@@ -47,7 +47,7 @@ test('Unsupported and empty toolbar states offer setup without claiming site cha
   const popup = await openToolbar(extensionContext);
   await expect.poll(() => popup.evaluate("document.querySelector('#providerName')?.textContent")).toBe('Open a supported chat');
   expect(await popup.evaluate("document.querySelector('#siteActions').hidden")).toBe(true);
-  expect(await popup.evaluate("document.querySelector('#advancedControls').hidden")).toBe(true);
+  expect(await popup.evaluate("document.querySelector('#comfortControls').hidden")).toBe(true);
   expect(await popup.evaluate("document.querySelector('#contextNotice').textContent")).toContain('ChatGPT');
   expect(await popup.evaluate("document.querySelector('#manageWallpaperBtn').textContent")).toBe('Choose wallpaper');
   expect(await settings.evaluate(async () => (await chrome.tabs.getCurrent())?.active)).toBe(false);

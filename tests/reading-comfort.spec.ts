@@ -57,9 +57,9 @@ test('Reading comfort is an additional select with provider isolation, reset pre
   await expect(page.locator('html')).not.toHaveAttribute('data-llm-wallpaper-comfort');
   await expect(other.locator('html')).toHaveAttribute('data-llm-wallpaper-comfort', /light|dark/);
   await expect(page.locator('#llm-wallpaper-overlay')).toBeAttached();
-  await settings.getByLabel('Settings scope').selectOption('gemini');
+  await settings.getByLabel('Apply settings to').selectOption('gemini');
   await expect(input).toHaveValue('off');
-  await page.getByRole('button', { name: 'Reset this site’s effects', exact: true }).click();
+  await settings.getByRole('button', { name: 'Reset provider effects', exact: true }).click();
   await expect(quick).toHaveValue('off');
   await quick.focus(); await quick.press('e'); await quick.press('Tab');
   await expect(input).toHaveValue('soft');

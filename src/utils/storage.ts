@@ -33,7 +33,7 @@ export interface WallpaperSettings {
 
 const CURRENT_SETTINGS_VERSION = 11;
 
-export const DEFAULT_EFFECTS = { opacity: 0.15, blur: 0, dimming: 0, dimTone: 'dark' as const, fit: 'cover' as const, positionX: 50, positionY: 50 };
+export const DEFAULT_EFFECTS = { opacity: 1, blur: 0, dimming: 0, dimTone: 'dark' as const, fit: 'cover' as const, positionX: 50, positionY: 50 };
 
 const DEFAULT_SETTINGS: WallpaperSettings = {
   imageDataUrl: null,

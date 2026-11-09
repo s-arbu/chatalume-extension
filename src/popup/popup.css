@@ -111,28 +111,31 @@ details[open] > summary { margin-bottom: 16px; }
 .support-section { background: none; padding-top: 0; padding-bottom: 0; }
 .support-section h2 { font-size: 14px; }
 .support-section details { margin-bottom: 12px; }
-body.toolbar { width: min(360px, 100%); min-width: 320px; max-width: 100vw; max-height: 580px; overflow-y: auto; }
+body.toolbar { height: 540px; width: min(360px, 100%); min-width: 320px; max-width: 100vw; max-height: 580px; overflow: hidden; }
 /* The browser owns the native popup frame; this rounds the inset content surface. */
 .toolbar .dashboard {
   width: calc(100% - 16px);
   margin: 8px;
   padding: 16px;
+  height: calc(100vh - 16px);
   max-height: 564px;
+  display: flex;
+  flex-direction: column;
   overflow-y: auto;
   border-radius: 12px;
   background: var(--card-bg);
 }
 .toolbar .section { background: var(--raised); }
-.toolbar header { gap: 12px; margin-bottom: 24px; }
+.toolbar header { gap: 12px; margin-bottom: 16px; }
 .toolbar .brand-mark { width: 32px; height: 32px; }
 .toolbar h1 { font-size: 18px; }
 .toolbar header p { font-size: 12px; }
-.toolbar .section { margin-bottom: 16px; padding: 16px; }
+.toolbar .section { margin-bottom: 16px; padding: 12px; }
 .toolbar-context h2 { margin-bottom: 8px; font-size: 20px; }
 .toolbar-actions { display: grid; gap: 8px; margin: 16px 0 8px; }
 .toolbar #globalPauseBtn, .toolbar #manageWallpaperBtn { width: 100%; }
 .toolbar #uploadError, .toolbar #saveStatus:not(:empty) { margin-top: 12px; }
-.toolbar-source { display: flex; align-items: center; gap: 12px; }
+.toolbar-source { min-height: 72px; display: flex; align-items: center; gap: 12px; }
 .toolbar-source img { width: 72px; height: 45px; object-fit: cover; border-radius: 4px; }
 .toolbar details .btn { margin-top: 8px; }
 @media (max-width: 760px) {
@@ -163,3 +166,11 @@ body.toolbar { width: min(360px, 100%); min-width: 320px; max-width: 100vw; max-
   #previewWallpaper, #previewShade { display: none; }
   .preview-chat p { background: Canvas; color: CanvasText; border: 1px solid ButtonText; }
 }
+
+.toolbar #comfortControls { margin: 12px 0 0; }
+
+.toolbar .dashboard > * { flex-shrink: 0; }
+.toolbar #manageWallpaperBtn { position: sticky; bottom: 0; margin-top: auto; }
+.toolbar #comfortControls { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.toolbar #comfortControls > label { margin: 0; }
+.toolbar #comfortControls > select { width: auto; flex: none; }

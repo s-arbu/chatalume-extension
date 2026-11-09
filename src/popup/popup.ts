@@ -44,6 +44,18 @@ function renderSetup(settings: WallpaperSettings) {
   motionNotice.hidden = !motionPreference.matches;
   motionNotice.textContent = settings.allowAnimations ? 'Animation is allowed even though reduced motion is on.' : 'Reduced motion is on. Animated wallpapers use a still frame.';
 }
+function selectScopeFromUrl() {
+  const value = new URLSearchParams(location.hash.slice(1)).get('provider') as ProviderId;
+  const input = document.getElementById('providerScope') as HTMLSelectElement;
+  input.value = PROVIDER_IDS.includes(value) ? value : 'global';
+  input.dispatchEvent(new Event('change'));
+}
+selectScopeFromUrl();
+window.addEventListener('hashchange', selectScopeFromUrl);
+document.getElementById('providerScope')!.addEventListener('change', () => {
+  const scope = (document.getElementById('providerScope') as HTMLSelectElement).value;
+  history.replaceState(null, '', `#provider=${scope}`);
+});
 void bindWallpaperControls(renderSetup);
 document.getElementById('setupPresetBtn')!.addEventListener('click', () => {
   document.querySelector<HTMLInputElement>('input[name="wallpaperSource"][value="mist"]')!.focus();

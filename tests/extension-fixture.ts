@@ -21,6 +21,7 @@ export const test = base.extend<{ extensionContext: BrowserContext }>({
     const context = await chromium.launchPersistentContext(userDataDir, {
       headless: true,
       channel: browserChannel ?? 'chromium',
+      ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE } : {}),
       args: [
         `--disable-extensions-except=${extensionPath}`,
         `--load-extension=${extensionPath}`
@@ -65,11 +66,12 @@ export const TARGET_SITES = [
   }
 ];
 
-export async function openSettings(context: BrowserContext) {
+export async function openSettings(context: BrowserContext, advanced = true) {
   const worker = context.serviceWorkers()[0] ?? await context.waitForEvent('serviceworker');
   const page = await context.newPage();
   await page.goto(`chrome-extension://${new URL(worker.url()).host}/popup.html`);
-  await expect(page.locator('#opacityInput')).toHaveValue('0.15');
+  await expect(page.locator('#opacityInput')).toHaveValue('1');
+  if (advanced) await page.locator('#appearanceDetails, .preferences-section').evaluateAll(elements => elements.forEach(el => { (el as HTMLDetailsElement).open = true; }));
   return page;
 }
 
